@@ -137,6 +137,22 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
     public abstract void visit(Enemy e);
 
     /**
+     * Returns the full status of the player, appending Level and Experience
+     * to the base Unit description.
+     *
+     * @return A formatted string containing all base stats plus level and XP.
+     */
+    @Override
+    public String description() {
+        int nextLevelRequirement = 50 * this.level;
+
+        return super.description() + String.format("\t\tLevel: %d\t\tExperience: %d/%d",
+                this.level,
+                this.experience,
+                nextLevelRequirement);
+    }
+
+    /**
      * Returns the visual character representation of the player for the game board.
      *
      * @return The '@' character, indicating the main player.

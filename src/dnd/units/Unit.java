@@ -91,6 +91,19 @@ public abstract class Unit implements OccupantVisitor, Occupant {
      */
     public int rollDefense() { return (int) (Math.random() * (this.defensePower + 1)); }
 
+    /**
+     * Returns the full status of the unit.
+     * Used during combat and on the player's turn to display stats.
+     *
+     * @return A formatted string containing name, health, attack, and defense.
+     */
+    public String description() {
+        return String.format("%s\t\tHealth: %s\t\tAttack: %d\t\tDefense: %d",
+                this.getName(),
+                this.getHealth().toString(),
+                this.attackPower,
+                this.defensePower);
+    }
 
     /**
      * Defines the combat interaction when this unit initiates an interaction
