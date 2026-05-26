@@ -47,9 +47,4 @@ public abstract class Enemy extends Unit {
     public void visit(Enemy e) {
         // Do nothing. Enemies do not engage in friendly fire.
     }
-
-    /**
-     * Executes a single action for this enemy during a game tick.
-     */
-    public abstract void onGameTick(Player player);
 }
