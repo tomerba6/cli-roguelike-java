@@ -1,4 +1,6 @@
 package dnd.units.enemy;
 
-public class Monster extends Enemy{
+import dnd.combat.CellVisitor;
+
+public class Monster extends Enemy implements CellVisitor {
 }
