@@ -126,15 +126,20 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
     }
 
     /**
-     * Defines the specific combat mechanics when the player attacks an enemy.
-     * <p>
-     * Left abstract because combat calculations (like multipliers or specific abilities)
-     * differ wildly depending on the character class (e.g., Warrior vs Rogue).
+     * Resolves combat when the player attacks an enemy.
+     * If the enemy dies, the player gains XP and takes their physical position.
      *
-     * @param e The enemy being targeted.
+     * @param e The enemy being attacked.
      */
     @Override
-    public abstract void visit(Enemy e);
+    public void visit(Enemy e) {
+        super.engageInCombat(e);
+
+        if (e.getHealth().isDead()) {
+            this.addExperience(e.getExperienceValue());
+            this.setPosition(e.getPosition());
+        }
+    }
 
     /**
      * Returns the full status of the player, appending Level and Experience

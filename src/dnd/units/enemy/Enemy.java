@@ -37,18 +37,15 @@ public abstract class Enemy extends Unit {
      */
     @Override
     public void visit(Player p) {
-        // The Enemy is the attacker, the Player is the defender.
-        // Combat logic goes here:
-        // 1. int attackRoll = this.rollAttack();
-        // 2. int defenseRoll = p.rollDefense();
-        // 3. Apply damage to p if attackRoll > defenseRoll
+        super.engageInCombat(p);
     }
 
     /**
-     * Defines what happens when this Enemy moves into another Enemy's cell.
+     * Prevents enemies from fighting each other.
      */
     @Override
     public void visit(Enemy e) {
+        // Do nothing. Enemies do not engage in friendly fire.
     }
 
     /**

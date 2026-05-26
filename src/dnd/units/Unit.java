@@ -106,6 +106,22 @@ public abstract class Unit implements OccupantVisitor, Occupant {
     }
 
     /**
+     * Executes the universal, silent mathematical resolution of a melee attack.
+     * Calculates attack and defense rolls, and applies damage if the attack exceeds defense.
+     *
+     * @param defender The unit receiving the attack.
+     */
+    protected void engageInCombat(Unit defender) {
+        int attackRoll = this.rollAttack();
+        int defenseRoll = defender.rollDefense();
+        int damageDealt = attackRoll - defenseRoll;
+
+        if (damageDealt > 0) {
+            defender.getHealth().takeDamage(damageDealt);
+        }
+    }
+
+    /**
      * Defines the combat interaction when this unit initiates an interaction
      * with a Player.
      *
