@@ -50,10 +50,14 @@ public class Position {
 
     /**
      * Calculates the Euclidean distance between this position and another given position.
-     * * @param other the target position to calculate the distance to
+     * @param other the target position to calculate the distance to
      * @return the exact Euclidean distance as a double
+     * @throws IllegalArgumentException if other is null.
      */
     public double range(Position other) {
+        if (other == null) {
+            throw new IllegalArgumentException("Fatal Math Error: Cannot calculate distance to a null position.");
+        }
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
 

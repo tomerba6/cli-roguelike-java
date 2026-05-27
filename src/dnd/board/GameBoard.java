@@ -16,15 +16,19 @@ public class GameBoard {
 
     /**
      * Constructs a new GameBoard with the specified 2D cell array.
-     * * @param board a pre-initialized 2D array of Cells representing the level layout
+     * @param board a pre-initialized 2D array of Cells representing the level layout
+     * @throws IllegalArgumentException if board is null or empty.
      */
     public GameBoard(Cell[][] board) {
+        if (board == null || board.length == 0 || board[0].length == 0) {
+            throw new IllegalArgumentException("Fatal Error: Game board cannot be null or empty.");
+        }
         this.board = board;
     }
 
     /**
      * Retrieves the terrain cell at the specified position.
-     * * @param p the position of the desired cell
+     * @param p the position of the desired cell
      * @return the {@code Cell} at the given position, or {@code null} if the position is out of bounds
      */
     public Cell getCell(Position p) {
@@ -36,7 +40,7 @@ public class GameBoard {
 
     /**
      * Retrieves the occupant currently standing on the cell at the specified position.
-     * * @param p the position to check for an occupant
+     * @param p the position to check for an occupant
      * @return the {@code Occupant} at the given position, or {@code null} if the cell is unoccupied,
      * is a Wall, or is out of bounds
      */
@@ -67,9 +71,10 @@ public class GameBoard {
     /**
      * Checks if the given position falls outside the dimensions of the board array.
      * * @param p the position to check
-     * @return {@code true} if the position is out of bounds, {@code false} otherwise
+     * @return {@code true} if the position is out of bounds or null, {@code false} otherwise
      */
     private boolean isOutOfBounds(Position p) {
+        if (p == null) return true;
         return p.getY() < 0 || p.getY() >= board.length ||
                 p.getX() < 0 || p.getX() >= board[0].length;
     }

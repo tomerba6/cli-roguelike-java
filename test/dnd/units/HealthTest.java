@@ -1,6 +1,4 @@
 package dnd.units;
-
-import dnd.units.Health;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,12 +77,10 @@ public class HealthTest {
 
     @Test
     public void testNegativeDamageThrowsException() {
-        // We assert that calling takeDamage(-20) WILL throw an IllegalArgumentException
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             health.takeDamage(-20);
         });
 
-        // We can even verify the error message is correct!
         assertTrue(exception.getMessage().contains("cannot be negative"));
     }
 

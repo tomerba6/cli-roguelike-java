@@ -12,9 +12,13 @@ public class Wall implements Cell {
      * Accepts a visitor and explicitly routes the execution to the visit(Wall) method.
      *
      * @param visitor The entity attempting to interact with this cell.
+     * @throws IllegalArgumentException if visitor is null.
      */
     @Override
     public void accept(CellVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Fatal Error: visitor cannot be null");
+        }
         visitor.visit(this);
     }
 
