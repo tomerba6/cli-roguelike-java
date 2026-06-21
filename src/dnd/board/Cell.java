@@ -1,6 +1,7 @@
 package dnd.board;
 
 import dnd.combat.CellVisitor;
+import dnd.units.Occupant;
 
 /**
  * Represents the structural nature of a location on the game board (e.g., Wall, Floor).
@@ -18,6 +19,9 @@ public interface Cell {
      * @param visitor The entity attempting to interact with this cell.
      */
     void accept(CellVisitor visitor);
+
+    Occupant getOccupant();
+    void setOccupant(Occupant occupant);
 
     /**
      * Returns the visual representation of this cell for the CLI rendering.

@@ -1,5 +1,6 @@
 package dnd.units;
 
+import dnd.board.Position;
 import dnd.combat.OccupantVisitor;
 
 /**
@@ -9,7 +10,7 @@ import dnd.combat.OccupantVisitor;
  * relying on the complex, heavy logic of real entities.
  */
 public class DummyOccupant implements Occupant {
-    private String renderCharacter;
+    private final String renderCharacter;
     public boolean acceptWasCalled = false;
 
     /**
@@ -30,6 +31,16 @@ public class DummyOccupant implements Occupant {
     @Override
     public void accept(OccupantVisitor visitor) {
         this.acceptWasCalled = true;
+    }
+
+    @Override
+    public void setPosition(Position p) {
+
+    }
+
+    @Override
+    public Position getPosition() {
+        return null;
     }
 
     /**

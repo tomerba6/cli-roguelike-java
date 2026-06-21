@@ -87,4 +87,12 @@ public class Position {
     public int hashCode() {
         return Objects.hash(x, y);
     }
+
+    /**
+     * Makes debugging and test failures readable.
+     */
+    @Override
+    public String toString() {
+        return "(" + this.getX() + ", " + this.getY() + ")";
+    }
 }

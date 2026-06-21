@@ -1,6 +1,7 @@
 package dnd.units.player;
 
 import dnd.board.Floor;
+import dnd.board.Position;
 import dnd.board.Wall;
 import dnd.combat.CellVisitor;
 import dnd.combat.HeroicUnit;
@@ -15,7 +16,7 @@ import dnd.units.enemy.Enemy;
  * This class implements movement (CellVisitor) and defines the base leveling
  * system. It also implements the HeroicUnit interface for special abilities.
  */
-public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
+public abstract class Player extends Unit implements HeroicUnit {
     /** The current level of the player. Starts at 1. */
     protected int level;
 
@@ -65,6 +66,8 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
         this.defensePower += this.level;
     }
 
+
+
     /**
      * Accepts an incoming interaction from another entity.
      * Routes the execution via Double Dispatch to the visitor's {@code visit(Player p)} method.
@@ -76,39 +79,18 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
         visitor.visit(this);
     }
 
-
     /**
-     * Defines the behavior when the player attempts to move into a Wall cell.
-     * Movement is completely blocked, ending the movement attempt.
+     * Handles the interaction when the Player attempts to move into a Wall.
+     * Prevents movement and sends a collision notification to the user interface.
      *
-     * @param w The wall cell being visited.
+     * @param wall The Wall object the Player collided with.
      */
     @Override
-    public void visit(Wall w) {
-        // Hit a wall. Movement is blocked. Do nothing.
-    }
-
-    /**
-     * Defines the behavior when the player attempts to move into a Floor cell.
-     * <p>
-     * If the floor is empty, the player successfully moves to that cell.
-     * If the floor contains an Occupant, the player initiates Level 2 combat
-     * by visiting that occupant.
-     *
-     * @param f The floor cell being visited.
-     */
-    @Override
-    public void visit(Floor f) {
-        Occupant target = f.getOccupant();
-        if (target == null) {
-            // The floor is empty. The Player successfully moves here.
-            this.setPosition(f.getPosition());
-        } else {
-            // The floor is occupied. We initiate Level 2 Combat.
-            target.accept(this);
+    public void visit(Wall wall) {
+        if (this.messageCallback != null) {
+            this.messageCallback.send(this.getName() + " Hit a wall.");
         }
     }
-
 
     /**
      * Defines the interaction when this player initiates an attack on another player.
@@ -136,10 +118,20 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
         super.engageInCombat(e);
 
         if (e.getHealth().isDead()) {
+            logMessage(e.getName() + " died. " + this.getName() + " gained " + e.getExperienceValue() + " experience");
             this.addExperience(e.getExperienceValue());
+
+            Position playerOldPos = this.getPosition();
+
+            // 2. The player steps onto the enemy's tile
             this.setPosition(e.getPosition());
+
+            // 3. Move the corpse to the player's old tile so GameEngine can safely delete it
+            e.setPosition(playerOldPos);
         }
     }
+
+    public abstract void onGameTick();
 
     /**
      * Returns the full status of the player, appending Level and Experience
@@ -158,12 +150,30 @@ public abstract class Player extends Unit implements CellVisitor, HeroicUnit {
     }
 
     /**
+     * Retrieves the level of the player.
+     *
+     * @return The Player's level.
+     */
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * Retrieves the experience points of the player.
+     *
+     * @return The Player's experience.
+     */
+    public int getExperience() {
+        return experience;
+    }
+
+    /**
      * Returns the visual character representation of the player for the game board.
      *
      * @return The '@' character, indicating the main player.
      */
     @Override
     public String toString() {
-        return "@"; // The standard assignment character for the main character
+        return this.getHealth().isDead() ? "X" : "@";
     }
 }

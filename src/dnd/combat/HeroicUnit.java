@@ -17,9 +17,10 @@ public interface HeroicUnit {
      * * @param activeEnemies a list of all currently living enemies on the board.
      * Player classes use this to calculate distances, find
      * targets within ability range, and apply damage.
-     * @param player        the current player character in the game. Boss units
+     * @param player the current player character in the game. Boss units
      * use this reference to check if the player is within
      * their vision range to target them.
+     * @return {@code true}  if the ability was cast, {@code false} otherwise.
      */
-    void castAbility(List<Enemy> activeEnemies, Player player);
+    boolean castAbility(List<Enemy> activeEnemies, Player player);
 }

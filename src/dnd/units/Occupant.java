@@ -1,5 +1,6 @@
 package dnd.units;
 
+import dnd.board.Position;
 import dnd.combat.OccupantVisitor;
 
 /**
@@ -17,6 +18,18 @@ public interface Occupant {
      * @param visitor The entity attempting to interact with (or attack) this occupant.
      */
     void accept(OccupantVisitor visitor);
+
+    /**
+     * Updates the internal coordinate state of the occupant.
+     * * @param p The new Position the occupant is standing on.
+     */
+    void setPosition(Position p);
+
+    /**
+     * Retrieves the current coordinate state of the occupant.
+     * * @return The current Position.
+     */
+    Position getPosition();
 
     /**
      * Returns the visual representation of this occupant for the CLI rendering.

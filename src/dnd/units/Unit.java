@@ -1,9 +1,13 @@
 package dnd.units;
 
+import dnd.board.Floor;
 import dnd.board.Position;
+import dnd.board.Wall;
+import dnd.combat.CellVisitor;
 import dnd.combat.OccupantVisitor;
 import dnd.units.enemy.Enemy;
 import dnd.units.player.Player;
+import dnd.utils.MessageCallback;
 
 /**
  * The foundational abstract class for all living entities in the game.
@@ -14,7 +18,10 @@ import dnd.units.player.Player;
  * to adhere to the Interface Segregation Principle, allowing non-moving units
  * (like Traps) to inherit safely.
  */
-public abstract class Unit implements OccupantVisitor, Occupant {
+public abstract class Unit implements CellVisitor, OccupantVisitor, Occupant {
+    /** Reference to the object responsible for I/O operations */
+    protected MessageCallback messageCallback;
+
     /** The display name of the unit. */
     protected String name;
 
@@ -76,6 +83,24 @@ public abstract class Unit implements OccupantVisitor, Occupant {
     public Health getHealth() { return health; }
 
     /**
+     * Retrieves the attack power of the unit.
+     *
+     * @return The Unit's attack power.
+     */
+    public int getAttackPower() {
+        return attackPower;
+    }
+
+    /**
+     * Retrieves the defense power of the unit.
+     *
+     * @return The Unit's defense power.
+     */
+    public int getDefensePower() {
+        return defensePower;
+    }
+
+    /**
      * Rolls a randomized attack value during combat.
      * The roll is an inclusive random integer between 0 and the unit's attackPower.
      *
@@ -112,12 +137,42 @@ public abstract class Unit implements OccupantVisitor, Occupant {
      * @param defender The unit receiving the attack.
      */
     protected void engageInCombat(Unit defender) {
+        logMessage(this.getName() + " engaged in combat with " + defender.getName() + ".");
+        logMessage(this.description());
+        logMessage(defender.description());
+
         int attackRoll = this.rollAttack();
         int defenseRoll = defender.rollDefense();
-        int damageDealt = attackRoll - defenseRoll;
 
-        if (damageDealt > 0) {
-            defender.getHealth().takeDamage(damageDealt);
+        logMessage(this.getName() + " rolled " + attackRoll + " attack points.");
+        logMessage(defender.getName() + " rolled " + defenseRoll + " defense points.");
+
+        int damage = attackRoll - defenseRoll;
+        if (damage < 0) damage = 0;
+
+        logMessage(this.getName() + " dealt " + damage + " damage to " + defender.getName() + ".");
+
+        if (damage > 0) {
+            defender.getHealth().takeDamage(damage);
+        }
+    }
+
+    @Override
+    public void visit(Wall w) {
+        // Do nothing. The unit attempted to walk into a wall and is blocked.
+    }
+
+    @Override
+    public void visit(Floor f) {
+        // The unit successfully stepped onto a floor.
+        // Check if someone is already standing there.
+        Occupant occupant = f.getOccupant();
+
+        if (occupant != null) {
+            //  The floor is occupied. Trigger Level 2 Visitor (Combat)
+            occupant.accept(this);
+        } else {
+            this.position = f.getPosition();
         }
     }
 
@@ -138,4 +193,24 @@ public abstract class Unit implements OccupantVisitor, Occupant {
      */
     @Override
     public abstract void visit(Enemy e);
+
+    /**
+     * Sets the message callback reference of the Unit.
+     *
+     * @param messageCallback the reference to the MessageCallback object.
+     */
+    public void setMessageCallback(MessageCallback messageCallback) {
+        this.messageCallback = messageCallback;
+    }
+
+    /**
+     * Logs the string we want to display directly to the callback.
+     *
+     * @param message the message we want to display.
+     */
+    protected void logMessage(String message) {
+        if (this.messageCallback != null) {
+            this.messageCallback.send(message);
+        }
+    }
 }

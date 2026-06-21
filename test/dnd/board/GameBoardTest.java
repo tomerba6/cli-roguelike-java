@@ -86,14 +86,19 @@ public class GameBoardTest {
     }
 
     @Test
-    public void testSetOccupantOnWallIsIgnored() {
+    public void testGetOccupantOnWallReturnsNull() {
+        // p01 is mapped to a Wall in our setUp() grid
+        assertNull(gameBoard.getOccupant(p01), "Retrieving an occupant from a Wall should safely return null");
+    }
+
+    @Test
+    public void testSetOccupantOnWallThrowsException() {
         Occupant dummy = new DummyOccupant("@");
 
-        gameBoard.setOccupant(p01, dummy);
-
-        // The game board should silently ignore this (or return null),
-        // ensuring monsters can't accidentally be merged into walls.
-        assertNull(gameBoard.getOccupant(p01), "Walls should always return null for occupants");
+        // Ensure the engine strictly prevents illegal entity merging
+        assertThrows(UnsupportedOperationException.class, () -> {
+            gameBoard.setOccupant(p01, dummy);
+        }, "Attempting to place an occupant in a wall must crash the engine");
     }
 
     @Test

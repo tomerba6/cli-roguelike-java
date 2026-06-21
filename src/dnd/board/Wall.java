@@ -1,6 +1,7 @@
 package dnd.board;
 
 import dnd.combat.CellVisitor;
+import dnd.units.Occupant;
 
 /**
  * Represents a solid wall on the game board.
@@ -20,6 +21,17 @@ public class Wall implements Cell {
             throw new IllegalArgumentException("Fatal Error: visitor cannot be null");
         }
         visitor.visit(this);
+    }
+
+    @Override
+    public Occupant getOccupant() {
+        return null; // A wall never has an occupant
+    }
+
+    @Override
+    public void setOccupant(Occupant occupant) {
+        throw new UnsupportedOperationException("Fatal Engine Error: Cannot set an occupant inside a solid Wall.");
+
     }
 
     /**

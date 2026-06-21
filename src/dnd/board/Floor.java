@@ -29,20 +29,6 @@ public class Floor implements Cell {
         return position;
     }
 
-    public Occupant getOccupant() {
-        return occupant;
-    }
-
-    /**
-     * Updates the occupant of this cell.
-     * Passing null clears the cell (e.g., when a unit moves away or dies).
-     *
-     * @param occupant The new occupant, or null to empty the cell.
-     */
-    public void setOccupant(Occupant occupant) {
-        this.occupant = occupant;
-    }
-
     /**
      * Accepts a visitor and explicitly routes the execution to the visit(Floor) method.
      *
@@ -55,6 +41,27 @@ public class Floor implements Cell {
             throw new IllegalArgumentException("Fatal Error: visitor cannot be null");
         }
         visitor.visit(this);
+    }
+
+    @Override
+    public Occupant getOccupant() {
+        return occupant;
+    }
+
+    /**
+     * Updates the occupant of this cell.
+     * Passing null clears the cell (e.g., when a unit moves away or dies).
+     *
+     * @param occupant The new occupant, or null to empty the cell.
+     */
+    @Override
+    public void setOccupant(Occupant occupant) {
+        this.occupant = occupant;
+
+        // Auto-sync the occupant's internal coordinates
+        if (occupant != null) {
+            occupant.setPosition(this.getPosition());
+        }
     }
 
     /**

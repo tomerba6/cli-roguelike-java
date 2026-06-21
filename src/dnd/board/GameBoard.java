@@ -47,9 +47,10 @@ public class GameBoard {
     public Occupant getOccupant(Position p) {
         Cell cell = getCell(p);
 
-        if (cell instanceof Floor) {
-            return ((Floor) cell).getOccupant();
+        if (cell != null) {
+            return cell.getOccupant();
         }
+
         return null;
     }
 
@@ -63,8 +64,8 @@ public class GameBoard {
     public void setOccupant(Position p, Occupant o) {
         Cell cell = getCell(p);
 
-        if (cell instanceof Floor) {
-            ((Floor) cell).setOccupant(o);
+        if (cell != null) {
+            cell.setOccupant(o);
         }
     }
 
