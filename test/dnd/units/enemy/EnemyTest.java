@@ -35,12 +35,14 @@ public class EnemyTest {
 
     // --- INITIALIZATION TESTS ---
 
+    /** Verifies name and experienceValue are stored correctly at construction. */
     @Test
     public void testEnemyInitialization() {
         assertEquals("Orc", enemy.getName(), "Enemy name should be correctly assigned");
         assertEquals(100, enemy.getExperienceValue(), "Experience value should be exactly 100");
     }
 
+    /** description() string includes "Experience Value: N" and the enemy's name. */
     @Test
     public void testDescriptionFormatting() {
         String desc = enemy.description();
@@ -50,6 +52,7 @@ public class EnemyTest {
 
     // --- DOUBLE DISPATCH (VISITOR) TESTS ---
 
+    /** Enemy visiting another enemy does nothing — no health change for either side. */
     @Test
     public void testFriendlyFireIsIgnored() {
         // Create a second enemy to act as the target
@@ -65,6 +68,7 @@ public class EnemyTest {
 
     // --- COMBAT & GAME OVER TESTS ---
 
+    /** Non-lethal enemy attack reduces player HP without triggering the "You lost." log. */
     @Test
     public void testCombatAgainstPlayerNonLethal() {
         // Enemy Attack (15) vs Player Defense (5) = 10 Damage.
@@ -78,6 +82,7 @@ public class EnemyTest {
         assertFalse(capturedLogs.contains("You lost."), "Game Over message should not print if the player survives");
     }
 
+    /** Lethal enemy attack kills the player and logs both the death message and "You lost." */
     @Test
     public void testCombatAgainstPlayerLethalTriggersGameOverLogs() {
         // Lower the player's health so the enemy one-shots them

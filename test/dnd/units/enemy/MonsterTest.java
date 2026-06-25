@@ -25,6 +25,7 @@ public class MonsterTest {
 
     // --- AI CHASE PATHFINDING TESTS ---
 
+    /** Monster chases player left when |dx| > |dy| and dx > 0. */
     @Test
     public void testTakeTurnMovesLeftWhenPlayerIsToTheLeft() {
         // Player is at (2, 5).
@@ -36,6 +37,7 @@ public class MonsterTest {
         assertEquals(new Position(4, 5), target, "Monster should move Left (X - 1)");
     }
 
+    /** Monster chases player right when |dx| > |dy| and dx < 0. */
     @Test
     public void testTakeTurnMovesRightWhenPlayerIsToTheRight() {
         // Player is at (8, 5).
@@ -47,6 +49,7 @@ public class MonsterTest {
         assertEquals(new Position(6, 5), target, "Monster should move Right (X + 1)");
     }
 
+    /** Monster chases player up when |dy| >= |dx| and dy > 0. */
     @Test
     public void testTakeTurnMovesUpWhenPlayerIsAbove() {
         // Player is at (5, 2).
@@ -58,6 +61,7 @@ public class MonsterTest {
         assertEquals(new Position(5, 4), target, "Monster should move Up (Y - 1)");
     }
 
+    /** Monster chases player down when |dy| >= |dx| and dy < 0. */
     @Test
     public void testTakeTurnMovesDownWhenPlayerIsBelow() {
         // Player is at (5, 8).
@@ -69,6 +73,7 @@ public class MonsterTest {
         assertEquals(new Position(5, 6), target, "Monster should move Down (Y + 1)");
     }
 
+    /** Perfect diagonal (|dx|==|dy|) falls through to the vertical branch. */
     @Test
     public void testTakeTurnDiagonalTieBreakerPrefersVertical() {
         // Player is at (3, 3) (Perfect diagonal).
@@ -83,6 +88,7 @@ public class MonsterTest {
 
     // --- AI OUT OF RANGE TESTS ---
 
+    /** Out-of-vision player triggers random roam: distance moved is at most 1 and never diagonal. */
     @Test
     public void testTakeTurnRoamsRandomlyWhenOutOfVision() {
         // Player is at (20, 20). Distance is ~21.2, which is > Vision Range (6).
@@ -102,6 +108,7 @@ public class MonsterTest {
         assertNotEquals(1.41, distanceMoved, 0.01, "Monster should not be able to move diagonally");
     }
 
+    /** toString() returns the single-char display symbol assigned at construction. */
     @Test
     public void testToStringReturnsCorrectSymbol() {
         assertEquals("M", monster.toString(), "Monster toString() must return its specific display tile string");

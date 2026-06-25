@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PositionTest {
 
 
+    /** Constructs Position(col, row) and verifies getX() and getY() return the constructor arguments. */
     @Test
     public void testInitializationAndGetters() {
         Position pos = new Position(5, -3);
@@ -15,12 +16,14 @@ public class PositionTest {
     }
 
 
+    /** range() to self is exactly 0.0. */
     @Test
     public void testRangeToSelf() {
         Position p1 = new Position(2, 2);
         assertEquals(0.0, p1.range(p1), "Distance to itself should be exactly 0.0");
     }
 
+    /** range() on a vertical line equals the row difference; result is symmetric. */
     @Test
     public void testRangeStraightLine() {
         Position p1 = new Position(0, 0);
@@ -30,6 +33,7 @@ public class PositionTest {
         assertEquals(5.0, p2.range(p1), "Distance calculation should be symmetric");
     }
 
+    /** range() on a 3-4-5 triangle returns exactly 5.0 (Pythagorean check). */
     @Test
     public void testRangeDiagonal() {
         Position p1 = new Position(0, 0);
@@ -39,6 +43,7 @@ public class PositionTest {
     }
 
 
+    /** equals() is true for same-coordinate positions, false for different coords, null, or other types. */
     @Test
     public void testEquals() {
         Position p1 = new Position(1, 2);
@@ -55,6 +60,7 @@ public class PositionTest {
         assertNotEquals("String", p1, "Position should not be equal to an object of a different type");
     }
 
+    /** Equal positions must produce identical hash codes (equals/hashCode contract). */
     @Test
     public void testHashCode() {
         Position p1 = new Position(10, 20);
@@ -64,6 +70,7 @@ public class PositionTest {
     }
 
 
+    /** range(null) throws an exception rather than returning silently. */
     @Test
     public void testRangeWithNullThrowsException() {
         Position p1 = new Position(0, 0);

@@ -5,6 +5,13 @@ import dnd.units.enemy.Enemy;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the Warrior player character.
+ * <p>
+ * The Warrior uses a cooldown system to cast "Avenger's Shield",
+ * an ability that heals the Warrior and randomly strikes one
+ * nearby enemy for a percentage of the Warrior's max health.
+ */
 public class Warrior extends Player {
     /** The base number of ticks required to recharge the ability. */
     private final int abilityCooldown;

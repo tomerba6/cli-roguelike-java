@@ -39,6 +39,7 @@ public class GameBoardTest {
     }
 
 
+    /** Null or empty board array throws IllegalArgumentException at construction. */
     @Test
     public void testConstructorThrowsExceptionOnInvalidBoard() {
         assertThrows(IllegalArgumentException.class, () -> new GameBoard(null),
@@ -49,12 +50,14 @@ public class GameBoardTest {
     }
 
 
+    /** getCell(pos) returns the correct Cell for a coordinate within the board bounds. */
     @Test
     public void testGetCellWithinBounds() {
         assertEquals(f00, gameBoard.getCell(p00), "Should retrieve the exact Floor object at 0,0");
         assertEquals(w01, gameBoard.getCell(p01), "Should retrieve the exact Wall object at 1,0");
     }
 
+    /** getCell(pos) returns null for any coordinate outside the board bounds. */
     @Test
     public void testGetCellOutOfBoundsReturnsNull() {
         // Negative coordinates
@@ -66,12 +69,14 @@ public class GameBoardTest {
         assertNull(gameBoard.getCell(new Position(0, 2)), "Y beyond height should return null");
     }
 
+    /** getCell(null) returns null rather than throwing. */
     @Test
     public void testGetCellWithNullPosition() {
         assertNull(gameBoard.getCell(null), "A null position should safely return null, not crash");
     }
 
 
+    /** setOccupant and getOccupant round-trip correctly on a Floor cell. */
     @Test
     public void testSetAndGetOccupantOnFloor() {
         Occupant dummy = new DummyOccupant("@");
@@ -85,12 +90,14 @@ public class GameBoardTest {
         assertNull(gameBoard.getOccupant(p00), "Floor should be empty after clearing");
     }
 
+    /** getOccupant on a Wall cell returns null (walls can't hold occupants). */
     @Test
     public void testGetOccupantOnWallReturnsNull() {
         // p01 is mapped to a Wall in our setUp() grid
         assertNull(gameBoard.getOccupant(p01), "Retrieving an occupant from a Wall should safely return null");
     }
 
+    /** setOccupant on a Wall cell throws an exception. */
     @Test
     public void testSetOccupantOnWallThrowsException() {
         Occupant dummy = new DummyOccupant("@");
@@ -101,6 +108,7 @@ public class GameBoardTest {
         }, "Attempting to place an occupant in a wall must crash the engine");
     }
 
+    /** setOccupant with an out-of-bounds position is silently ignored, no exception thrown. */
     @Test
     public void testSetOccupantOutOfBoundsIsIgnored() {
         Occupant dummy = new DummyOccupant("@");
@@ -111,6 +119,7 @@ public class GameBoardTest {
     }
 
 
+    /** toString() renders the full grid row-by-row with newlines between rows. */
     @Test
     public void testToStringRendersCorrectly() {
         gameBoard.setOccupant(p11, new DummyOccupant("@"));

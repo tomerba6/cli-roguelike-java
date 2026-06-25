@@ -26,11 +26,13 @@ public class MageTest {
 
     // --- INITIALIZATION AND LEVELING TESTS ---
 
+    /** Starting mana equals manaPool / 4. */
     @Test
     public void testInitialization() {
         assertEquals(75, mage.getCurrentMana(), "Mage should start with 1/4 of their max mana (300 / 4 = 75)");
     }
 
+    /** Level-up to 2: verifies mana pool, spell power, and current mana restoration formula. */
     @Test
     public void testMageLevelUpMath() {
         // Force a level up to Level 2 (requires 50 XP)
@@ -53,6 +55,7 @@ public class MageTest {
 
     // --- TIME TICK (MANA REGEN) TESTS ---
 
+    /** Each tick regenerates currentLevel mana, capped at manaPool. */
     @Test
     public void testOnGameTickRegeneratesMana() {
         // Drain mana manually by casting.
@@ -82,6 +85,7 @@ public class MageTest {
 
     // --- ABILITY RESOURCE TESTS ---
 
+    /** Third cast with insufficient mana returns false and leaves mana unchanged. */
     @Test
     public void testCastAbilityFailsGracefullyWithoutMana() {
         // Mage starts with 75 mana. Cost is 30.
@@ -100,6 +104,7 @@ public class MageTest {
 
     // --- COMBAT MATH AND MULTI-HIT TESTS ---
 
+    /** Each hit deals spellPower minus enemy defense roll; mana cost is deducted once. */
     @Test
     public void testBlizzardDamageMath() {
         // DummyEnemy ALWAYS rolls max defense (5)
@@ -120,6 +125,7 @@ public class MageTest {
         assertEquals(45, mage.getCurrentMana(), "Casting should consume exactly 30 mana");
     }
 
+    /** Enemy killed mid-cast grants XP instantly and triggers a level-up without crashing. */
     @Test
     public void testBlizzardFiltersDeadBodiesGracefully() {
         // DummyEnemy with only 10 Health. It will die on the first hit of the Blizzard.
@@ -144,6 +150,7 @@ public class MageTest {
         assertEquals(2, mage.getLevel(), "Mage should have safely processed the kill and gained XP immediately");
     }
 
+    /** Enemies beyond abilityRange take zero damage; mana is still consumed. */
     @Test
     public void testBlizzardIgnoresOutOFRangeEnemies() {
         // Enemy is at position (10, 10). Distance is ~14.1, which is > Ability Range (6)
@@ -159,5 +166,35 @@ public class MageTest {
         // The ability should execute, consume mana, realize no one is in range, and silently end.
         assertEquals(45, mage.getCurrentMana(), "Mana is consumed even if no targets are hit");
         assertEquals(100, farEnemy.getHealth().getHealthAmount(), "Out of range enemies should take 0 damage");
+    }
+
+    /** Multiple enemies killed in one cast each grant XP independently. */
+    @Test
+    public void testBlizzardKillsMultipleEnemiesAndGrantsXpForEach() {
+        // Two weak enemies in range, each dies in one hit. Mage should gain XP from both kills.
+        // XP set to 20 each (total 40) to avoid triggering a level up during this test.
+        DummyEnemy weakEnemy1 = new DummyEnemy("Skeleton 1", 5, 0, 0, 20);
+        weakEnemy1.setPosition(new Position(0, 1)); // Distance 1.0 — within range 6
+
+        DummyEnemy weakEnemy2 = new DummyEnemy("Skeleton 2", 5, 0, 0, 20);
+        weakEnemy2.setPosition(new Position(1, 0)); // Distance 1.0 — within range 6
+
+        List<Enemy> activeEnemies = new ArrayList<>();
+        activeEnemies.add(weakEnemy1);
+        activeEnemies.add(weakEnemy2);
+
+        // Spell Power (15) > HP (5), so each hit is a one-shot.
+        // Hit 1: kills one enemy, grants 20 XP.
+        // Hit 2: the dead filter kicks in, kills the other, grants 20 XP.
+        // Hit 3: no living enemies remain — loop exits.
+        boolean success = mage.castAbility(activeEnemies, mage);
+        assertTrue(success, "Cast should succeed");
+
+        assertTrue(weakEnemy1.getHealth().isDead(), "Enemy 1 should be killed by Blizzard");
+        assertTrue(weakEnemy2.getHealth().isDead(), "Enemy 2 should be killed by Blizzard");
+
+        // XP from both kills: 20 + 20 = 40
+        assertEquals(40, mage.getExperience(), "Mage should gain XP from every kill within a single cast");
+        assertEquals(1, mage.getLevel(), "Mage should remain level 1 with 40 / 50 XP");
     }
 }

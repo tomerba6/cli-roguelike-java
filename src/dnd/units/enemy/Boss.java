@@ -44,14 +44,12 @@ public class Boss extends Monster implements HeroicUnit {
         // 1. Player is within vision range
         if (distance < this.visionRange) {
 
-            this.combatTicks++;
-            // Check if ability timer has reached the frequency threshold
             if (this.combatTicks == this.abilityFrequency) {
                 this.combatTicks = 0;
-                this.castAbility(null, player); // Boss casts Shoebodybop
-                return currentPos; // Boss remains in place while casting
+                this.castAbility(null, player);
+                return currentPos;
             } else {
-                // Delegate the complex chase math directly to the Monster superclass
+                this.combatTicks++;
                 return super.takeTurn(player);
             }
 

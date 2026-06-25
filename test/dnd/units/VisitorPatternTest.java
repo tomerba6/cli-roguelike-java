@@ -24,6 +24,7 @@ public class VisitorPatternTest {
 
     // --- LEVEL 2 DOUBLE DISPATCH TESTS (Occupant Visitor) ---
 
+    /** enemy.accept(player) must route to player.visit(Enemy), dealing correct melee damage. */
     @Test
     public void testEnemyAcceptsPlayerVisitor() {
         // Player attempts to step on the Enemy's tile.
@@ -38,6 +39,7 @@ public class VisitorPatternTest {
                 "Enemy should take damage, proving accept() correctly routed to visit(Enemy)");
     }
 
+    /** player.accept(enemy) must route to enemy.visit(Player), dealing correct melee damage. */
     @Test
     public void testPlayerAcceptsEnemyVisitor() {
         // Enemy attempts to step on the Player's tile.
@@ -50,6 +52,7 @@ public class VisitorPatternTest {
                 "Player should take damage, proving accept() correctly routed to visit(Player)");
     }
 
+    /** Two enemies colliding must not deal any damage due to friendly-fire prevention. */
     @Test
     public void testFriendlyFireIsPreventedByVisitorPattern() {
         // An enemy accidentally tries to step on another enemy's tile

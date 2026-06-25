@@ -21,6 +21,7 @@ public class PlayerTest {
 
     // --- INITIALIZATION TESTS ---
 
+    /** Verifies level=1, experience=0, and toString='@' on a freshly constructed player. */
     @Test
     public void testPlayerInitialization() {
         assertEquals(1, player.getLevel(), "Player should start at level 1");
@@ -30,6 +31,7 @@ public class PlayerTest {
 
     // --- COMBAT & MOVEMENT (THE SWAP BUG FIX) TESTS ---
 
+    /** Non-lethal hit: player and enemy keep their positions; player gains 0 XP. */
     @Test
     public void testMeleeCombatNonLethalDoesNotSwapPositions() {
         // Create an enemy that can survive the hit. Player Attack (20) vs Enemy Defense (0) = 20 Damage.
@@ -54,6 +56,7 @@ public class PlayerTest {
         assertEquals(0, player.getExperience(), "Player should gain 0 XP for a non-lethal hit");
     }
 
+    /** Lethal hit: player steps into enemy's tile and corpse is swapped to player's old tile. */
     @Test
     public void testMeleeCombatLethalTriggersCorpseSwapAndXp() {
         // Create an enemy that will die in one hit.
@@ -79,6 +82,7 @@ public class PlayerTest {
 
     // --- LEVEL UP MATH TESTS ---
 
+    /** Exactly 50 XP triggers a level-up: verifies base stat increases and full heal. */
     @Test
     public void testAddExperienceExactLevelUp() {
         // Level 1 -> 2 requires exactly 50 XP
@@ -97,6 +101,7 @@ public class PlayerTest {
         assertEquals(7, player.getDefensePower(), "Defense should increase by 1 * level");
     }
 
+    /** 170 XP causes two consecutive level-ups with correct leftover XP. */
     @Test
     public void testAddExperienceMassiveRollover() {
         // Player starts at Level 1 (0 XP)
@@ -112,6 +117,7 @@ public class PlayerTest {
 
     // --- GAME ENGINE SAFETIES ---
 
+    /** Visiting a Player from another Player always throws IllegalStateException. */
     @Test
     public void testFriendlyFireThrowsException() {
         DummyPlayer ally = new DummyPlayer("Ally", 100, 10, 10);
@@ -121,6 +127,7 @@ public class PlayerTest {
         });
     }
 
+    /** Dead player renders as 'X' instead of '@'. */
     @Test
     public void testPlayerCorpseRenderingForGameOver() {
         assertEquals("@", player.toString(), "Living player is '@'");

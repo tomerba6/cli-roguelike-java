@@ -24,6 +24,7 @@ public class WarriorTest {
 
     // --- LEVELING TESTS ---
 
+    /** Level-up to 2: verifies combined base+warrior HP/attack/defense gains and cooldown reset. */
     @Test
     public void testWarriorLevelUpMath() {
         // Force a level up (Level 1 -> 2 requires 50 XP)
@@ -46,6 +47,7 @@ public class WarriorTest {
 
     // --- TICKING AND COOLDOWN TESTS ---
 
+    /** Casting the ability sets cooldown; each tick reduces it by 1; floors at 0. */
     @Test
     public void testOnGameTickReducesCooldown() {
         boolean success = warrior.castAbility(new ArrayList<>(), warrior);
@@ -65,6 +67,7 @@ public class WarriorTest {
         assertEquals(0, warrior.getRemainingCooldown(), "Cooldown should never drop below 0");
     }
 
+    /** Second consecutive cast while on cooldown returns false and leaves all state unchanged. */
     @Test
     public void testCastAbilityOnCooldownSafelyAborts() {
         DummyEnemy enemy = new DummyEnemy("Orc", 50, 10, 5, 100);
@@ -89,6 +92,7 @@ public class WarriorTest {
 
     // --- ABILITY MATH TESTS ---
 
+    /** Avenger's Shield heals for 10×defense and deals 10% max-HP minus enemy defense roll. */
     @Test
     public void testAvengersShieldMath() {
         // Set up the Warrior to be slightly damaged so we can verify healing
@@ -112,6 +116,7 @@ public class WarriorTest {
         assertEquals(45, enemy.getHealth().getHealthAmount(), "Enemy should take 10% of Max HP minus their defense roll");
     }
 
+    /** Shield kills a weak enemy and grants XP instantly without triggering a level-up. */
     @Test
     public void testAvengersShieldKillsEnemyAndGrantsInstantXp() {
         // 5 Health enemy. Shield deals 5 mitigated damage (10 Atk - 5 Def), killing it exactly.
@@ -131,5 +136,30 @@ public class WarriorTest {
         // 2. Verify Instant XP (Native OOP design)
         assertEquals(40, warrior.getExperience(), "Warrior SHOULD gain XP instantly upon killing the enemy via the ability.");
         assertEquals(1, warrior.getLevel(), "Warrior should remain level 1.");
+    }
+
+    /** Shield still heals when no enemies are in range; out-of-range enemy takes no damage. */
+    @Test
+    public void testAvengersShieldWithNoEnemiesInRange() {
+        // Warrior is at (0, 0). Enemy is at (10, 10) — distance ~14.1, well outside range < 3.
+        warrior.getHealth().takeDamage(50); // Start at 50/100 to verify healing still occurs.
+
+        DummyEnemy farEnemy = new DummyEnemy("Far Orc", 50, 10, 5, 100);
+        farEnemy.setPosition(new Position(10, 10));
+
+        List<Enemy> activeEnemies = new ArrayList<>();
+        activeEnemies.add(farEnemy);
+
+        boolean success = warrior.castAbility(activeEnemies, warrior);
+        assertTrue(success, "Ability should still succeed even with no targets in range");
+
+        // 1. Warrior heals regardless: 10 * defense (10 * 4 = 40). 50 + 40 = 90.
+        assertEquals(90, warrior.getHealth().getHealthAmount(), "Warrior should heal even when no targets are in range");
+
+        // 2. Out-of-range enemy should take zero damage
+        assertEquals(50, farEnemy.getHealth().getHealthAmount(), "Out of range enemy should take no damage");
+
+        // 3. Cooldown should still be set
+        assertEquals(3, warrior.getRemainingCooldown(), "Cooldown should be set even if no targets were hit");
     }
 }

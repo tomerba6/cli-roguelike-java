@@ -16,12 +16,14 @@ public class WallTest {
     }
 
 
+    /** Wall always returns '#' from toString(). */
     @Test
     public void testToString() {
         assertEquals("#", wall.toString(), "Wall should render as a hash '#'");
     }
 
 
+    /** accept(CellVisitor) routes to visitWall, never to visitFloor. */
     @Test
     public void testAcceptRoutesToVisitWall() {
         DummyCellVisitor visitor = new DummyCellVisitor();
@@ -33,6 +35,7 @@ public class WallTest {
     }
 
 
+    /** accept(null) throws an exception rather than silently doing nothing. */
     @Test
     public void testAcceptNullVisitor() {
         assertThrows(Exception.class, () -> {

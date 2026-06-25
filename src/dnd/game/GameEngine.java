@@ -11,6 +11,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Drives the core game loop.
+ * <p>
+ * Coordinates player input, ability casting, enemy AI turns,
+ * corpse cleanup, level transitions, and win/lose detection.
+ * All business logic flows through {@link #gameTick(char)};
+ * the UI layer interacts only via {@link MessageCallback}.
+ */
 public class GameEngine {
 
     private final LevelLoader levelLoader;
@@ -24,6 +32,11 @@ public class GameEngine {
     private boolean gameOver;
     private boolean gameWon;
 
+    /**
+     * Constructs a new GameEngine with the ordered list of level file paths.
+     *
+     * @param levelPaths absolute paths to each level .txt file, in play order
+     */
     public GameEngine(List<String> levelPaths) {
         this.levelLoader = new LevelLoader();
         this.levelPaths = levelPaths;
@@ -170,8 +183,12 @@ public class GameEngine {
     }
 
     // Getters for CLI
+    /** @return the {@link GameBoard} for the currently active level, or {@code null} if no level is loaded */
     public GameBoard getCurrentBoard() { return currentLevel != null ? currentLevel.getBoard() : null; }
+    /** @return the player character */
     public Player getPlayer() { return player; }
+    /** @return {@code true} if the player has died */
     public boolean isGameOver() { return gameOver; }
+    /** @return {@code true} if all levels have been cleared */
     public boolean isGameWon() { return gameWon; }
 }

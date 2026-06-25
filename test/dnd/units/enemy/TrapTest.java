@@ -26,6 +26,7 @@ public class TrapTest {
 
     // --- VISIBILITY TIMER TESTS ---
 
+    /** First takeTurn call: trap is visible and toString returns its display symbol. */
     @Test
     public void testInitialization() {
         // Trap logic is updated in takeTurn, so we call it once to establish the initial state
@@ -35,6 +36,7 @@ public class TrapTest {
         assertEquals("D", trap.toString(), "toString should return the display symbol when visible");
     }
 
+    /** Full 7-turn cycle: 3 visible turns, 4 invisible turns, then visible again on turn 8. */
     @Test
     public void testVisibilityTimerCycle() {
         // Total cycle = 3 (visible) + 4 (invisible) = 7 turns.
@@ -77,6 +79,7 @@ public class TrapTest {
 
     // --- AI AND MOVEMENT TESTS ---
 
+    /** takeTurn always returns the trap's own position regardless of player location. */
     @Test
     public void testTrapIsStationary() {
         player.setPosition(new Position(10, 10)); // Move player away
@@ -86,6 +89,7 @@ public class TrapTest {
         assertEquals(new Position(5, 5), target, "Traps cannot move. takeTurn must return current position");
     }
 
+    /** Player at distance < 2 receives damage after takeTurn. */
     @Test
     public void testTrapAttacksWhenInRange() {
         // Player is at (6, 5). Distance 1.0 (< 2).
@@ -100,6 +104,7 @@ public class TrapTest {
                 "Player should have taken damage because they are within range < 2");
     }
 
+    /** Player at distance >= 2 receives no damage after takeTurn. */
     @Test
     public void testTrapIgnoresPlayerOutOfRange() {
         // Player at (5, 7). Distance 2.0 (>= 2).

@@ -25,6 +25,7 @@ public class HunterTest {
 
     // --- INITIALIZATION AND LEVELING TESTS ---
 
+    /** Starting arrows = 10 * level (10 at level 1); ticksCount starts at 0. */
     @Test
     public void testInitialization() {
         // Level 1 Hunter starts with 10 * level arrows
@@ -32,6 +33,7 @@ public class HunterTest {
         assertEquals(0, hunter.getTicksCount(), "Ticks count should start at 0");
     }
 
+    /** Level-up to 2: verifies combined base+hunter attack, defense, and arrow count gains. */
     @Test
     public void testHunterLevelUpMath() {
         // Drain an arrow to verify addition stacks properly
@@ -67,6 +69,7 @@ public class HunterTest {
 
     // --- TIME TICK (DELAYED ARROW REGEN) TESTS ---
 
+    /** After exactly 11 ticks the regen fires: arrows increase by level and counter resets to 0. */
     @Test
     public void testOnGameTickRegeneratesArrowsAfterDelay() {
         assertEquals(10, hunter.getArrowsCount());
@@ -84,8 +87,26 @@ public class HunterTest {
         assertEquals(11, hunter.getArrowsCount(), "Arrows should increase by level (1) after the delayed ticks");
     }
 
+    /** ticksCount is not reset when the hunter levels up mid-regen cycle. */
+    @Test
+    public void testTicksCountCarriesAcrossLevelUp() {
+        // Advance the tick counter partway through the regen cycle.
+        for (int i = 0; i < 5; i++) {
+            hunter.onGameTick();
+        }
+        assertEquals(5, hunter.getTicksCount(), "Ticks should be 5 before leveling up");
+
+        // Force a level up (50 XP required at Level 1)
+        hunter.addExperience(50);
+        assertEquals(2, hunter.getLevel(), "Hunter should now be level 2");
+
+        // The spec does not say to reset ticksCount on level up — it should carry over unchanged.
+        assertEquals(5, hunter.getTicksCount(), "ticksCount should not be reset by a level up");
+    }
+
     // --- ABILITY RESOURCE TESTS ---
 
+    /** Casting with 0 arrows returns false; enemy takes no damage and arrow count stays at 0. */
     @Test
     public void testCastAbilityFailsGracefullyWithoutArrows() {
         // Create a valid target
@@ -109,6 +130,7 @@ public class HunterTest {
         assertEquals(healthBeforeAbort, validTarget.getHealth().getHealthAmount(), "Target should not take damage when quiver is empty");
     }
 
+    /** With no enemy within range, cast returns false and no arrow is consumed. */
     @Test
     public void testCastAbilityFailsGracefullyIfNoEnemiesInRange() {
         // Enemy is at position (10, 10). Distance is ~14.1, which is > Ability Range (6)
@@ -128,6 +150,7 @@ public class HunterTest {
 
     // --- COMBAT TARGETING MATH TESTS ---
 
+    /** Shoot targets the closest in-range enemy; other valid enemies take no damage. */
     @Test
     public void testShootTargetsClosestEnemyCorrectly() {
         // Hunter is at (0, 0)
@@ -161,6 +184,7 @@ public class HunterTest {
         assertEquals(9, hunter.getArrowsCount(), "Casting should consume exactly 1 arrow");
     }
 
+    /** Enemy at exactly range=6 is a valid target; kill grants XP instantly. */
     @Test
     public void testShootKillsTargetAndGrantsInstantXP() {
         // Range is 6. Place a weak enemy at exactly distance 6.0 (e.g., coordinates 0, 6).

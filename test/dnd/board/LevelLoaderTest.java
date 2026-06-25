@@ -30,6 +30,7 @@ public class LevelLoaderTest {
 
     // --- PARSING TESTS ---
 
+    /** Parses a minimal map: verifies correct board dimensions and wall/floor cell types at known positions. */
     @Test
     public void testBasicBoardParsing(@TempDir Path tempDir) throws IOException {
         // 1. Create a temporary text file simulating a basic map
@@ -59,6 +60,7 @@ public class LevelLoaderTest {
         assertTrue(level.getActiveEnemies().isEmpty(), "There should be no enemies in this list");
     }
 
+    /** Enemy characters spawn the correct Enemy subclass via the factory and appear in the active list. */
     @Test
     public void testEnemySpawningAndFactoryIntegration(@TempDir Path tempDir) throws IOException {
         // 1. Create a map with one Monster ('s'), one Trap ('D'), and one Boss ('M')
@@ -86,6 +88,7 @@ public class LevelLoaderTest {
 
     // --- EXCEPTION HANDLING TESTS ---
 
+    /** Empty file throws the documented exception rather than returning null or an empty board. */
     @Test
     public void testEmptyFileThrowsException(@TempDir Path tempDir) throws IOException {
         Path levelPath = tempDir.resolve("empty.txt");
@@ -97,6 +100,7 @@ public class LevelLoaderTest {
         assertTrue(exception.getMessage().contains("empty"), "Should catch empty files instantly");
     }
 
+    /** Unknown tile character throws the documented exception. */
     @Test
     public void testUnknownCharacterThrowsException(@TempDir Path tempDir) throws IOException {
         Path levelPath = tempDir.resolve("corrupted.txt");
@@ -111,5 +115,24 @@ public class LevelLoaderTest {
             levelLoader.loadLevel(levelPath.toString(), player);
         });
         assertTrue(exception.getMessage().contains("Unknown character"), "Should crash on invalid ASCII characters");
+    }
+
+    /** Level file with no '@' marker loads without throwing; player position is left at its default. */
+    @Test
+    public void testMissingPlayerSpawnDoesNotThrow(@TempDir Path tempDir) throws IOException {
+        // A level file with no '@' is technically valid structure-wise — the loader
+        // simply never calls player.setPosition(), leaving it as null.
+        Path levelPath = tempDir.resolve("noSpawn.txt");
+        Files.write(levelPath, Arrays.asList(
+                "###",
+                "#.#",
+                "###"
+        ));
+
+        assertDoesNotThrow(() -> {
+            Level level = levelLoader.loadLevel(levelPath.toString(), player);
+            assertEquals(0, level.getActiveEnemies().size(), "No enemies should be spawned in a no-enemy map");
+            assertNull(player.getPosition(), "Player position should remain null when '@' is absent from the level file");
+        });
     }
 }

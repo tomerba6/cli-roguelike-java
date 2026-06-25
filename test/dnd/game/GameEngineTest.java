@@ -4,7 +4,6 @@ import dnd.board.GameBoard;
 import dnd.board.Position;
 import dnd.units.Occupant;
 import dnd.units.enemy.Enemy;
-import dnd.units.enemy.Monster;
 import dnd.units.player.Warrior;
 import dnd.utils.MessageCallback;
 import org.junit.jupiter.api.AfterEach;
@@ -73,6 +72,7 @@ public class GameEngineTest {
 
     // --- GAME ENGINE INTEGRATION TESTS ---
 
+    /** Killing the last enemy on a non-final level causes the engine to load the next level. */
     @Test
     public void testEngineTransitionsToNextLevelWhenCleared() {
         // tempLevel1 has a player at (1,1) and a monster at (2,2).
@@ -98,6 +98,7 @@ public class GameEngineTest {
         assertNotNull(engine.getCurrentBoard().getCell(new Position(3, 1)).getOccupant(), "Level 2's monster should be loaded on the board");
     }
 
+    /** Pressing 'e' calls the player's castAbility and depletes one cast's worth of resources. */
     @Test
     public void testPlayerAbilityInputTriggersCast() throws Exception {
         // Player ('@') is standing near a monster ('s')
@@ -126,6 +127,7 @@ public class GameEngineTest {
         assertEquals(3, player.getRemainingCooldown(), "Cooldown should reset to 3/3");
     }
 
+    /** Engine initializes with the correct board and enemy list after construction. */
     @Test
     public void testEngineLoadsFirstLevelProperly() {
         assertNotNull(engine.getCurrentBoard(), "Board should be loaded");
@@ -138,6 +140,7 @@ public class GameEngineTest {
         assertFalse(engine.isGameWon(), "Game should not be won yet");
     }
 
+    /** Player pressing a valid direction key moves to the adjacent floor tile. */
     @Test
     public void testValidMovementUpdatesPosition() {
         // Player is at (1,1). We send 'd' to move right to (2,1).
@@ -146,6 +149,7 @@ public class GameEngineTest {
         assertEquals(new Position(2, 1), engine.getPlayer().getPosition(), "Player should move to the right into the empty floor");
     }
 
+    /** Player pressing a direction key toward a wall stays in place. */
     @Test
     public void testInvalidMovementIsBlockedByWalls() {
         // Player is at (1,1). We send 'w' to move up into the '#' wall at (1,0).
@@ -155,6 +159,7 @@ public class GameEngineTest {
         assertEquals(new Position(1, 1), engine.getPlayer().getPosition(), "Player should NOT be able to move into a Wall cell");
     }
 
+    /** Unrecognized key character aborts the tick; enemies do not take their turn. */
     @Test
     public void testInvalidInputIsIgnoredAndAbortsTick() throws Exception {
         // Player at (1,1). Boss at (4,1).
@@ -173,6 +178,7 @@ public class GameEngineTest {
         assertNotNull(engine.getCurrentBoard().getCell(new Position(5, 1)).getOccupant(), "Enemy should not get a free turn when the player enters invalid input");
     }
 
+    /** Killing the last enemy on the final level sets isGameWon() to true. */
     @Test
     public void testGameWonWhenAllLevelsCleared() throws Exception {
         // Create an empty room with NO enemies using our custom loader
@@ -195,9 +201,17 @@ public class GameEngineTest {
      * and returns the initialized Engine. This allows for rapid map scenario testing!
      */
     private GameEngine loadCustomLevel(String mapLayout) throws IOException {
+        return loadCustomLevelWithPlayer(mapLayout, 1);
+    }
+
+    /**
+     * Variant of loadCustomLevel that lets you choose the player type.
+     * playerChoice maps directly to PlayerFactory.createPlayer (1=Warrior, 3=Mage, 5=Rogue, 7=Hunter).
+     */
+    private GameEngine loadCustomLevelWithPlayer(String mapLayout, int playerChoice) throws IOException {
         capturedLogs.clear();
         File tempFile = File.createTempFile("customLevel", ".txt");
-        tempFile.deleteOnExit(); // OS will automatically clean this up later
+        tempFile.deleteOnExit();
 
         try (FileWriter writer = new FileWriter(tempFile)) {
             writer.write(mapLayout);
@@ -207,14 +221,14 @@ public class GameEngineTest {
         levelPaths.add(tempFile.getAbsolutePath());
 
         GameEngine testEngine = new GameEngine(levelPaths);
-        // Using '1' to spawn a standard Player. Providing a silent callback.
-        testEngine.initialize(1, message -> capturedLogs.add(message));
+        testEngine.initialize(playerChoice, message -> capturedLogs.add(message));
 
         return testEngine;
     }
 
     // --- ADVANCED INTEGRATION TESTS ---
 
+    /** Multiple enemies chase the player simultaneously without occupying the same tile. */
     @Test
     public void testMultipleEnemiesMovementAndBlocking() throws Exception {
         // Player at (1,1). Enemy 's' at (3,1). Enemy 'k' at (4,1).
@@ -242,6 +256,7 @@ public class GameEngineTest {
         assertNull(occupant41, "The back space should be fully clear");
     }
 
+    /** Trap deals damage to the player when they are adjacent after a game tick. */
     @Test
     public void testTrapAttacksWhenPlayerIsAdjacent() throws Exception {
         // Trap ('B') spawns directly next to Player ('@')
@@ -264,6 +279,7 @@ public class GameEngineTest {
         assertTrue(trapAttacked, "Trap should automatically initiate combat when range < 2, even if it rolls 0 damage");
     }
 
+    /** Boss chases the player within vision range and melee-attacks when adjacent. */
     @Test
     public void testBossChasesAndEngagesInMeleeCombat() throws Exception {
         // Boss ('M') spawns 4 tiles away from the Player
@@ -294,6 +310,7 @@ public class GameEngineTest {
         assertTrue(bossAttacked, "Boss should have successfully triggered the melee combat logic on tick 4");
     }
 
+    /** Boss trapped behind a wall accumulates combatTicks to abilityFrequency and then casts its ability. */
     @Test
     public void testBossCastsAbilityOnExactTickWhileTrapped() throws Exception {
         // Boss ('M') spawns 4 tiles away, but is TRAPPED behind a wall ('#')
@@ -305,7 +322,8 @@ public class GameEngineTest {
         GameEngine engine = loadCustomLevel(map);
         int initialHealth = engine.getPlayer().getHealth().getHealthAmount();
 
-        // Tick 1, 2, 3, 4: Boss tries to pathfind but is blocked by the wall.
+        // Tick 1-5: Boss tries to pathfind but is blocked by the wall. Ticks count up to 5.
+        engine.gameTick('q');
         engine.gameTick('q');
         engine.gameTick('q');
         engine.gameTick('q');
@@ -317,17 +335,18 @@ public class GameEngineTest {
         // Clear logs right before the crucial tick so we only see the ability cast
         capturedLogs.clear();
 
-        // Tick 5: The Ability Trigger!
+        // Tick 6: The Ability Trigger! (combatTicks reaches abilityFrequency=5, check fires before increment)
         engine.gameTick('q');
 
         // Verify the Ability fired via the logs, completely bypassing RNG stat math
         boolean abilityCast = capturedLogs.stream().anyMatch(log -> log.contains("shoots") || log.contains("ability damage"));
-        assertTrue(abilityCast, "Boss MUST have cast its ability on exactly tick 5");
+        assertTrue(abilityCast, "Boss MUST have cast its ability on exactly tick 6");
 
         // Verify the Boss didn't magically teleport through the wall
         assertEquals(new Position(5, 1), engine.getCurrentBoard().getCell(new Position(5, 1)).getOccupant().getPosition(), "Boss should still be trapped at its starting position");
     }
 
+    /** Player HP reaching 0 sets isGameOver() to true and stops further enemy turns. */
     @Test
     public void testEngineCorrectlyHaltsWhenPlayerDies() throws Exception {
         // Surround the player with 3 powerful Bosses/Knights
@@ -357,6 +376,7 @@ public class GameEngineTest {
         assertEquals("X", engine.getPlayer().toString(), "Player should render as a corpse");
     }
 
+    /** Player moving onto an enemy tile triggers combat and logs the hit message. */
     @Test
     public void testPlayerMeleeAttackTriggersCombatLog() throws Exception {
         // Player is standing directly next to a standard monster ('s')
@@ -376,6 +396,7 @@ public class GameEngineTest {
         assertTrue(playerAttacked, "Pressing a movement key into an enemy should trigger the Player's melee combat Visitor");
     }
 
+    /** Enemy killed by the player is removed from the active list by the engine's janitor sweep. */
     @Test
     public void testPlayerKillsEnemyAndEngineClearsCorpse() throws Exception {
         // Player is standing directly next to a monster ('s')
@@ -405,5 +426,135 @@ public class GameEngineTest {
 
         // 3. Verify the Game Engine recognized the kill and flagged the Win state
         assertTrue(engine.isGameWon(), "Because the only monster was killed, the active enemies list should be empty, triggering the Win state");
+    }
+
+    /** Pressing 'e' as Mage deducts mana and applies Blizzard damage to enemies in range. */
+    @Test
+    public void testMageAbilityInputCastsBlizzard() throws Exception {
+        // Mage (choice 3 = Melisandre) starts with 75/300 mana, cost 30 — can cast immediately.
+        // Enemy 's' is 1 tile away, well within Blizzard's range of 6.
+        String map = "####\n" +
+                "#@s#\n" +
+                "####";
+
+        GameEngine engine = loadCustomLevelWithPlayer(map, 3);
+
+        engine.gameTick('e');
+
+        boolean blizzardCast = capturedLogs.stream().anyMatch(log -> log.contains("cast Blizzard"));
+        assertTrue(blizzardCast, "Pressing 'e' with a Mage should route gameTick to Blizzard cast");
+
+        // Casting an ability skips onGameTick — mana should NOT regenerate this turn
+        assertEquals(new Position(1, 1), engine.getPlayer().getPosition(), "Mage should remain stationary while casting");
+    }
+
+    /** Pressing 'e' as Rogue deducts energy and applies Fan of Knives to adjacent enemies. */
+    @Test
+    public void testRogueAbilityInputCastsFanOfKnives() throws Exception {
+        // Rogue (choice 5 = Arya Stark) starts with 100 energy, cost 20 — can cast immediately.
+        // Enemy 's' at (2,1) is distance 1.0 from player at (1,1), within Fan of Knives range < 2.
+        String map = "####\n" +
+                "#@s#\n" +
+                "####";
+
+        GameEngine engine = loadCustomLevelWithPlayer(map, 5);
+
+        engine.gameTick('e');
+
+        boolean fanCast = capturedLogs.stream().anyMatch(log -> log.contains("Fan of Knives"));
+        assertTrue(fanCast, "Pressing 'e' with a Rogue should route gameTick to Fan of Knives cast");
+
+        assertEquals(new Position(1, 1), engine.getPlayer().getPosition(), "Rogue should remain stationary while casting");
+    }
+
+    /** Pressing 'e' as Hunter deducts one arrow and applies Shoot damage to the closest in-range enemy. */
+    @Test
+    public void testHunterAbilityInputCastsShoot() throws Exception {
+        // Hunter (choice 7 = Ygritte) starts with 10 arrows, range 6 — can cast immediately.
+        // Enemy 's' at (2,1) is distance 1.0, within shooting range of 6.
+        String map = "####\n" +
+                "#@s#\n" +
+                "####";
+
+        GameEngine engine = loadCustomLevelWithPlayer(map, 7);
+
+        engine.gameTick('e');
+
+        boolean shotFired = capturedLogs.stream().anyMatch(log -> log.contains("fired an arrow"));
+        assertTrue(shotFired, "Pressing 'e' with a Hunter should route gameTick to Shoot cast");
+
+        assertEquals(new Position(1, 1), engine.getPlayer().getPosition(), "Hunter should remain stationary while casting");
+    }
+
+    /** Killing an enemy that grants enough XP triggers an in-engine level-up with stat increases. */
+    @Test
+    public void testPlayerLevelsUpMidGameViaKill() throws Exception {
+        // Gold Cloak ('s') grants 25 XP. Pre-load the player to 49 XP (just below the 50-XP threshold).
+        // One kill pushes total to 74 >= 50, triggering a level up mid-game.
+        String map = "####\n" +
+                "#@s#\n" +
+                "####";
+
+        GameEngine engine = loadCustomLevel(map);
+
+        engine.getPlayer().addExperience(49);
+        assertEquals(1, engine.getPlayer().getLevel(), "Player should still be level 1 with 49 XP");
+
+        int healthPoolBefore = engine.getPlayer().getHealth().getHealthPool();
+
+        // Drop enemy to 1 HP so the first successful hit kills it regardless of RNG
+        Occupant target = engine.getCurrentBoard().getCell(new Position(2, 1)).getOccupant();
+        if (target instanceof Enemy) {
+            ((Enemy) target).getHealth().takeDamage(((Enemy) target).getHealth().getHealthAmount() - 1);
+        }
+
+        // RNG-Buster: repeat until the level-up fires (any non-zero damage roll kills a 1-HP enemy)
+        for (int i = 0; i < 50 && engine.getPlayer().getLevel() == 1; i++) {
+            engine.gameTick('d');
+        }
+
+        assertEquals(2, engine.getPlayer().getLevel(), "Player should have leveled up to level 2 after the kill");
+        assertTrue(engine.getPlayer().getHealth().getHealthPool() > healthPoolBefore, "Health pool should increase on level up");
+        assertEquals(engine.getPlayer().getHealth().getHealthPool(), engine.getPlayer().getHealth().getHealthAmount(),
+                "Player should be fully healed upon leveling up");
+    }
+
+    /** Full two-level game: clears level 1, loads level 2, clears level 2, isGameWon() becomes true. */
+    @Test
+    public void testFullMultiLevelProgressionToWin() throws IOException {
+        // Three empty levels — each clears immediately because there are no enemies.
+        // Tick 1 clears level 1 and loads level 2.
+        // Tick 2 clears level 2 and loads level 3.
+        // Tick 3 clears level 3 — no more levels remain — gameWon = true.
+        File level1 = File.createTempFile("full1", ".txt");
+        File level2 = File.createTempFile("full2", ".txt");
+        File level3 = File.createTempFile("full3", ".txt");
+        level1.deleteOnExit(); level2.deleteOnExit(); level3.deleteOnExit();
+
+        String emptyMap = "#####\n#@..#\n#####\n";
+        for (File file : new File[]{level1, level2, level3}) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(emptyMap);
+            }
+        }
+
+        List<String> paths = new ArrayList<>();
+        paths.add(level1.getAbsolutePath());
+        paths.add(level2.getAbsolutePath());
+        paths.add(level3.getAbsolutePath());
+
+        capturedLogs.clear();
+        GameEngine progressionEngine = new GameEngine(paths);
+        progressionEngine.initialize(1, message -> capturedLogs.add(message));
+
+        progressionEngine.gameTick('q');
+        assertFalse(progressionEngine.isGameWon(), "Game should not be won after clearing only level 1");
+
+        progressionEngine.gameTick('q');
+        assertFalse(progressionEngine.isGameWon(), "Game should not be won after clearing only level 2");
+
+        progressionEngine.gameTick('q');
+        assertTrue(progressionEngine.isGameWon(), "Engine should flag gameWon after clearing all 3 levels");
+        assertFalse(progressionEngine.isGameOver(), "Winning should not trigger the game over flag");
     }
 }

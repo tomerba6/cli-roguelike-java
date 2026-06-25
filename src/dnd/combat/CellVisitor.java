@@ -14,14 +14,14 @@ public interface CellVisitor {
     /**
      * Defines the interaction when the visitor attempts to step on a Wall.
      * Generally, this will result in movement being blocked.
-     * * @param w The wall being visited.
+     * @param wall The wall being visited.
      */
     public void visit(Wall wall);
 
     /**
      * Defines the interaction when the visitor attempts to step on a Floor.
      * Generally, this will result in checking the floor for an Occupant.
-     * * @param f The floor being visited.
+     * @param floor The floor being visited.
      */
     public void visit(Floor floor);
 }

@@ -24,6 +24,7 @@ public class UnitTest {
 
     // --- ENGAGE IN COMBAT TESTS ---
 
+    /** Player attacks enemy: verifies defender loses HP equal to rollAttack minus rollDefense. */
     @Test
     public void testCombatAttackerWins() {
         // Player Attack Roll = 20. Enemy Defense Roll = 10. Damage = 10.
@@ -33,6 +34,7 @@ public class UnitTest {
         assertEquals(100, player.getHealth().getHealthAmount(), "Attacker should not lose health during their own attack");
     }
 
+    /** Enemy attacks a highly defended player: verifies damage floors at 0, not going negative. */
     @Test
     public void testCombatDefenderFullyBlocks() {
         // Enemy Attack Roll = 10. Player Defense Roll = 5. Damage = 5.
@@ -47,6 +49,7 @@ public class UnitTest {
         assertEquals(100, tank.getHealth().getHealthAmount(), "Defender taking negative damage should safely floor to 0");
     }
 
+    /** Player kills enemy: verifies death, instant XP gain, and the corpse position swap. */
     @Test
     public void testCombatDeathAndPositionSwap() {
         // Slime: 20 Health, 0 Def.
@@ -75,6 +78,7 @@ public class UnitTest {
 
     // --- LEVEL UP SYSTEM TEST ---
 
+    /** Adds 250 XP: verifies multi-level-up rollover, leftover XP, and cumulative stat growth. */
     @Test
     public void testExperienceAndLevelUp() {
         // Player starts at Level 1. Math check:

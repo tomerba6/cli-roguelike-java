@@ -131,6 +131,10 @@ public abstract class Player extends Unit implements HeroicUnit {
         }
     }
 
+    /**
+     * Called once per game loop tick when the player did not cast an ability.
+     * Subclasses use this to regenerate resources (mana, energy, arrows, cooldown).
+     */
     public abstract void onGameTick();
 
     /**

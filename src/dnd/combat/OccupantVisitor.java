@@ -15,14 +15,14 @@ public interface OccupantVisitor {
     /**
      * Defines the interaction when the visitor targets a Player.
      * For Enemies, this initiates an attack against the Player.
-     * * @param p The player being targeted.
+     * @param player The player being targeted.
      */
     public void visit(Player player);
 
     /**
      * Defines the interaction when the visitor targets an Enemy.
      * For Players, this initiates an attack against the Monster or Trap.
-     * * @param e The enemy being targeted.
+     * @param enemy The enemy being targeted.
      */
     public void visit(Enemy enemy);
 }

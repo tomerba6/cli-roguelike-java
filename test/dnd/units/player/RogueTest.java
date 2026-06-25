@@ -24,11 +24,13 @@ public class RogueTest {
 
     // --- INITIALIZATION AND LEVELING TESTS ---
 
+    /** Starting energy equals MAX_ENERGY (100). */
     @Test
     public void testInitialization() {
         assertEquals(100, rogue.getCurrentEnergy(), "Rogue should start with exactly 100 max energy");
     }
 
+    /** Level-up to 2: verifies base+rogue attack gains and energy refill to 100. */
     @Test
     public void testRogueLevelUpMath() {
         // Drain some energy to verify it refills on level up.
@@ -56,6 +58,7 @@ public class RogueTest {
 
     // --- TIME TICK (ENERGY REGEN) TESTS ---
 
+    /** Each tick regenerates 10 energy, capped at 100. */
     @Test
     public void testOnGameTickRegeneratesEnergy() {
         // Drain energy manually by casting (100 -> 80)
@@ -76,6 +79,7 @@ public class RogueTest {
 
     // --- ABILITY RESOURCE TESTS ---
 
+    /** Sixth cast with 0 energy returns false; energy stays at 0. */
     @Test
     public void testCastAbilityFailsGracefullyWithoutEnergy() {
         // Rogue starts with 100 energy. Pure cost is 20.
@@ -97,6 +101,7 @@ public class RogueTest {
 
     // --- COMBAT MATH AND MULTI-HIT TESTS ---
 
+    /** Fan of Knives hits every adjacent enemy and deducts energy cost once. */
     @Test
     public void testFanOfKnivesHitsMultipleAdjacentTargets() {
         // Rogue is at (1, 1).
@@ -125,6 +130,7 @@ public class RogueTest {
         assertEquals(80, rogue.getCurrentEnergy(), "Casting should consume exactly 20 energy");
     }
 
+    /** Enemies at distance >= 2 take no damage; energy is still consumed. */
     @Test
     public void testFanOfKnivesIgnoresOutOFRangeEnemies() {
         // Rogue is at (1, 1).
@@ -142,6 +148,7 @@ public class RogueTest {
         assertEquals(100, farEnemy.getHealth().getHealthAmount(), "Enemies at distance 2.0 or greater should take 0 damage");
     }
 
+    /** Killing an enemy during Fan of Knives grants XP instantly. */
     @Test
     public void testFanOfKnivesKillsAndGrantsInstantXP() {
         // Weak enemy at adjacent tile (0, 0)

@@ -13,14 +13,20 @@ public abstract class Enemy extends Unit {
     private final int experienceValue;
 
     /**
-     * Constructs a new Enemy.
-     * Matches the Unit super-constructor and adds the experience reward.
+     * Constructs a new Enemy with base combat statistics and an XP reward.
+     *
+     * @param name            the display name of the enemy
+     * @param healthPool      the maximum health capacity
+     * @param attackPower     the maximum attack roll value
+     * @param defensePower    the maximum defense roll value
+     * @param experienceValue the XP granted to the player upon this enemy's death
      */
     public Enemy(String name, int healthPool, int attackPower, int defensePower, int experienceValue) {
         super(name, healthPool, attackPower, defensePower);
         this.experienceValue = experienceValue;
     }
 
+    /** @return the XP the player receives when this enemy is killed */
     public int getExperienceValue() {
         return experienceValue;
     }

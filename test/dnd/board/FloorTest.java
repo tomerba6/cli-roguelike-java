@@ -19,12 +19,14 @@ public class FloorTest {
     }
 
 
+    /** Newly created Floor stores its position and starts with no occupant. */
     @Test
     public void testInitialization() {
         assertEquals(position, floor.getPosition(), "Floor should retain the exact Position it was given");
         assertNull(floor.getOccupant(), "Floor should spawn completely empty");
     }
 
+    /** Constructing a Floor with a null position throws IllegalArgumentException. */
     @Test
     public void testConstructorThrowsExceptionOnNullPosition() {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -32,6 +34,7 @@ public class FloorTest {
         }, "Creating a floor with a null position should throw an exception");
     }
 
+    /** setOccupant places an entity; setting null clears the occupant and getOccupant returns null. */
     @Test
     public void testSetAndClearOccupant() {
         Occupant dummy = new DummyOccupant("Z");
@@ -44,11 +47,13 @@ public class FloorTest {
     }
 
 
+    /** toString() on an empty floor returns '.'. */
     @Test
     public void testToStringUnoccupied() {
         assertEquals(".", floor.toString(), "Empty floor should render as a dot '.'");
     }
 
+    /** toString() on an occupied floor returns the occupant's symbol. */
     @Test
     public void testToStringOccupied() {
         Occupant dummy = new DummyOccupant("Z");
@@ -58,6 +63,7 @@ public class FloorTest {
     }
 
 
+    /** accept(CellVisitor) routes to visitFloor, never to visitWall. */
     @Test
     public void testAcceptRoutesToVisitFloor() {
         DummyCellVisitor visitor = new DummyCellVisitor();
@@ -68,6 +74,7 @@ public class FloorTest {
         assertFalse(visitor.visitedWall, "Floor.accept() should NEVER route to visitor.visit(Wall)");
     }
 
+    /** Setting a second occupant directly overwrites the first without clearing in between. */
     @Test
     public void testOverwriteOccupant() {
         Occupant dummy1 = new DummyOccupant("A");
@@ -80,6 +87,7 @@ public class FloorTest {
         assertEquals("B", floor.toString(), "Floor should render the newly overwritten occupant");
     }
 
+    /** accept(null) throws an exception rather than silently doing nothing. */
     @Test
     public void testAcceptNullVisitor() {
         // If your Floor class doesn't explicitly check for null, this will throw a NullPointerException.
