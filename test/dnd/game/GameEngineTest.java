@@ -497,8 +497,8 @@ public class GameEngineTest {
 
         GameEngine engine = loadCustomLevel(map);
 
-        engine.getPlayer().addExperience(49);
-        assertEquals(1, engine.getPlayer().getLevel(), "Player should still be level 1 with 49 XP");
+        engine.getPlayer().addExperience(75);
+        assertEquals(1, engine.getPlayer().getLevel(), "Player should still be level 1 with 75 XP");
 
         int healthPoolBefore = engine.getPlayer().getHealth().getHealthPool();
 
@@ -515,8 +515,6 @@ public class GameEngineTest {
 
         assertEquals(2, engine.getPlayer().getLevel(), "Player should have leveled up to level 2 after the kill");
         assertTrue(engine.getPlayer().getHealth().getHealthPool() > healthPoolBefore, "Health pool should increase on level up");
-        assertEquals(engine.getPlayer().getHealth().getHealthPool(), engine.getPlayer().getHealth().getHealthAmount(),
-                "Player should be fully healed upon leveling up");
     }
 
     /** Full two-level game: clears level 1, loads level 2, clears level 2, isGameWon() becomes true. */

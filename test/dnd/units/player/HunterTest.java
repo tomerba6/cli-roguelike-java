@@ -36,9 +36,9 @@ public class HunterTest {
     /** Level-up to 2: verifies combined base+hunter attack, defense, and arrow count gains. */
     @Test
     public void testHunterLevelUpMath() {
-        // Drain an arrow to verify addition stacks properly
+        // Drain an arrow to verify cap applies cleanly on level-up
         List<Enemy> dummyTargetList = new ArrayList<>();
-        DummyEnemy dummy = new DummyEnemy("Target", 100, 0, 0, 50);
+        DummyEnemy dummy = new DummyEnemy("Target", 1000, 0, 0, 50);
         dummy.setPosition(new Position(0, 1));
         dummyTargetList.add(dummy);
 
@@ -46,45 +46,51 @@ public class HunterTest {
         assertTrue(success, "Cast should succeed");
         assertEquals(9, hunter.getArrowsCount());
 
-        // Force a level up to Level 2 (requires 50 XP)
-        hunter.addExperience(50);
+        // Force a level up to Level 2 (requires 100 XP)
+        hunter.addExperience(100);
 
-        // 1. Verify Normal Player Stats
-        assertEquals(240, hunter.getHealth().getHealthPool(), "Health pool: 220 + (10 * 2) = 240");
+        // 1. Verify Normal Player Stats (flat gains)
+        assertEquals(235, hunter.getHealth().getHealthPool(), "Health pool: 220 + 15 = 235");
 
         // 2. Verify Hunter-Specific Stats
-        // Base Player Attack increases by (4 * 2) = 8
-        // Hunter Bonus Attack increases by (2 * 2) = 4
-        // Total Attack: 30 + 8 + 4 = 42
-        assertEquals(42, hunter.getAttackPower(), "Attack should scale with both Player and Hunter bonuses");
+        // Base Player Attack increases by flat 5
+        // Hunter Bonus Attack increases by flat 2
+        // Total Attack: 30 + 5 + 2 = 37
+        assertEquals(37, hunter.getAttackPower(), "Attack should scale with both Player and Hunter bonuses");
 
-        // Base Player Defense increases by (1 * 2) = 2
-        // Hunter Bonus Defense increases by (1 * 2) = 2
-        // Total Defense: 2 + 2 + 2 = 6
-        assertEquals(6, hunter.getDefensePower(), "Defense should scale with both Player and Hunter bonuses");
+        // Base Player Defense increases by flat 1
+        // Hunter Bonus Defense increases by flat 1
+        // Total Defense: 2 + 1 + 1 = 4
+        assertEquals(4, hunter.getDefensePower(), "Defense should scale with both Player and Hunter bonuses");
 
-        // Arrows: Previous (9) + (10 * 2) = 29
-        assertEquals(29, hunter.getArrowsCount(), "Arrows should increase by 10 * level upon leveling up");
+        // Arrows: capped at 10 * level = 20 at level 2
+        assertEquals(20, hunter.getArrowsCount(), "Arrows should fill to the cap (10 * level) upon leveling up");
     }
 
     // --- TIME TICK (DELAYED ARROW REGEN) TESTS ---
 
-    /** After exactly 11 ticks the regen fires: arrows increase by level and counter resets to 0. */
+    /** After exactly 11 ticks the regen fires: arrows increase by 1 (flat), capped at 10×level. */
     @Test
     public void testOnGameTickRegeneratesArrowsAfterDelay() {
-        assertEquals(10, hunter.getArrowsCount());
+        // Drain 1 arrow so regen can fire (cap is 10; regen does nothing if already at cap).
+        DummyEnemy drainTarget = new DummyEnemy("Training Target", 1000, 0, 0, 50);
+        drainTarget.setPosition(new Position(0, 1));
+        List<Enemy> drainList = new ArrayList<>();
+        drainList.add(drainTarget);
+        hunter.castAbility(drainList, hunter);
+        assertEquals(9, hunter.getArrowsCount(), "One arrow should be spent");
 
         // Tick 10 times. The counter should reach 10, but arrows should NOT increase yet.
         for (int i = 0; i < 10; i++) {
             hunter.onGameTick();
         }
         assertEquals(10, hunter.getTicksCount(), "Counter should be exactly 10");
-        assertEquals(10, hunter.getArrowsCount(), "Arrows should not increase until the exact tick condition is met");
+        assertEquals(9, hunter.getArrowsCount(), "Arrows should not change before the regen tick");
 
-        // Tick an 11th time. Condition (ticksCount == 10) is met.
+        // Tick an 11th time. Condition (ticksCount == 10) is met: +1 arrow, capped at 10.
         hunter.onGameTick();
         assertEquals(0, hunter.getTicksCount(), "Counter should reset to 0");
-        assertEquals(11, hunter.getArrowsCount(), "Arrows should increase by level (1) after the delayed ticks");
+        assertEquals(10, hunter.getArrowsCount(), "Regen adds exactly 1 arrow, capped at 10×level (10)");
     }
 
     /** ticksCount is not reset when the hunter levels up mid-regen cycle. */
@@ -96,8 +102,8 @@ public class HunterTest {
         }
         assertEquals(5, hunter.getTicksCount(), "Ticks should be 5 before leveling up");
 
-        // Force a level up (50 XP required at Level 1)
-        hunter.addExperience(50);
+        // Force a level up (100 XP required at Level 1)
+        hunter.addExperience(100);
         assertEquals(2, hunter.getLevel(), "Hunter should now be level 2");
 
         // The spec does not say to reset ticksCount on level up — it should carry over unchanged.

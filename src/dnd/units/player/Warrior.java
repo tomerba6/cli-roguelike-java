@@ -47,15 +47,15 @@ public class Warrior extends Player {
         this.remainingCooldown = 0;
 
         // 3. Apply Warrior specific bonuses
-        this.getHealth().addHealthPool(5 * this.level);
-        this.getHealth().heal(this.getHealth().getHealthPool()); // Ensure fully healed to the new cap
-        this.attackPower += 2 * this.level;
-        this.defensePower += 2 * this.level; // (+2 here plus +1 in base = +3 total)
+        this.getHealth().addHealthPool(5);
+        this.getHealth().heal(this.getHealth().getHealthPool() / 4); // Heal 25% of the new cap
+        this.attackPower += 2;
+        this.defensePower += 2; // (+2 here plus +1 in base = +3 total)
 
         // 4. Log the exact total stat gains
-        int totalHealthGain = 15 * this.level;
-        int totalAttackGain = 6 * this.level;
-        int totalDefenseGain = 3 * this.level;
+        int totalHealthGain = 20;
+        int totalAttackGain = 7;
+        int totalDefenseGain = 3;
 
         logMessage(getName() + " reached level " + this.level + ": +" + totalHealthGain + " Health, +" + totalAttackGain + " Attack, +" + totalDefenseGain + " Defense");
     }
@@ -91,7 +91,7 @@ public class Warrior extends Player {
         this.remainingCooldown = this.abilityCooldown;
 
         // 3. Heal
-        int healAmount = 10 * this.defensePower;
+        int healAmount = Math.min(10 * this.defensePower, 50 * this.level);
         logMessage(getName() + " used Avenger's Shield, healing for " + healAmount + ".");
         this.getHealth().heal(healAmount);
 

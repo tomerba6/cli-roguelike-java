@@ -35,27 +35,27 @@ public class MageTest {
     /** Level-up to 2: verifies mana pool, spell power, and current mana restoration formula. */
     @Test
     public void testMageLevelUpMath() {
-        // Force a level up to Level 2 (requires 50 XP)
-        mage.addExperience(50);
+        // Force a level up to Level 2 (requires 100 XP)
+        mage.addExperience(100);
 
-        // 1. Verify Normal Player Stats
-        assertEquals(120, mage.getHealth().getHealthPool(), "Health pool: 100 + (10 * 2) = 120");
-        assertEquals(13, mage.getAttackPower(), "Attack: 5 + (4 * 2) = 13");
+        // 1. Verify Normal Player Stats (flat gains)
+        assertEquals(115, mage.getHealth().getHealthPool(), "Health pool: 100 + 15 = 115");
+        assertEquals(10, mage.getAttackPower(), "Attack: 5 + 5 = 10");
 
         // 2. Verify Mage-Specific Stats
-        // Mana Pool: 300 + (25 * 2) = 350
-        assertEquals(350, mage.getManaPool(), "Mana pool should increase by 25 * level");
+        // Mana Pool: 300 + 25 = 325
+        assertEquals(325, mage.getManaPool(), "Mana pool should increase by flat 25");
 
-        // Spell Power: 15 + (10 * 2) = 35
-        assertEquals(35, mage.getSpellPower(), "Spell power should increase by 10 * level");
+        // Spell Power: 15 + 10 = 25
+        assertEquals(25, mage.getSpellPower(), "Spell power should increase by flat 10");
 
-        // Current Mana: 75 + (350 / 4) = 75 + 87 = 162
-        assertEquals(162, mage.getCurrentMana(), "Current mana should heal by manaPool / 4");
+        // Current Mana: 75 + (325 / 4) = 75 + 81 = 156
+        assertEquals(156, mage.getCurrentMana(), "Current mana should heal by manaPool / 4");
     }
 
     // --- TIME TICK (MANA REGEN) TESTS ---
 
-    /** Each tick regenerates currentLevel mana, capped at manaPool. */
+    /** Each tick regenerates level×2 mana, capped at manaPool; scales with level on level-up. */
     @Test
     public void testOnGameTickRegeneratesMana() {
         // Drain mana manually by casting.
@@ -65,22 +65,22 @@ public class MageTest {
         assertTrue(success, "Cast should succeed");
         assertEquals(45, mage.getCurrentMana(), "Mana should deduct exactly the cost (30)");
 
-        // Tick at level 1 regenerates 1 * level = 1 mana
+        // Tick at level 1 regenerates level * 2 = 2 mana
         mage.onGameTick();
-        assertEquals(46, mage.getCurrentMana(), "Tick should regenerate 1 mana at Level 1");
+        assertEquals(47, mage.getCurrentMana(), "Tick should regenerate 2 mana at Level 1");
 
         // Force level up to test scaling regeneration
-        mage.addExperience(50); // Now level 2
+        mage.addExperience(100); // Now level 2
 
         // Math Check:
-        // New Mana Pool = 300 + (25 * 2) = 350
-        // Heals by: 350 / 4 = 87
-        // Current Mana = 46 + 87 = 133
-        assertEquals(133, mage.getCurrentMana(), "Mana should heal based on rolling state, not starting state");
+        // New Mana Pool = 300 + 25 = 325
+        // Heals by: 325 / 4 = 81
+        // Current Mana = 47 + 81 = 128
+        assertEquals(128, mage.getCurrentMana(), "Mana should heal based on rolling state, not starting state");
 
         mage.onGameTick();
-        // Previous mana (133) + 2 from level 2 tick = 135
-        assertEquals(135, mage.getCurrentMana(), "Tick should regenerate 2 mana at Level 2");
+        // Previous mana (128) + 4 from level 2 tick (2 * 2) = 132
+        assertEquals(132, mage.getCurrentMana(), "Tick should regenerate 4 mana at Level 2");
     }
 
     // --- ABILITY RESOURCE TESTS ---
@@ -129,8 +129,8 @@ public class MageTest {
     @Test
     public void testBlizzardFiltersDeadBodiesGracefully() {
         // DummyEnemy with only 10 Health. It will die on the first hit of the Blizzard.
-        // Drops 50 XP to trigger an instant level up!
-        DummyEnemy weakEnemy = new DummyEnemy("Fragile Skeleton", 10, 0, 0, 50);
+        // Drops 100 XP to trigger an instant level up!
+        DummyEnemy weakEnemy = new DummyEnemy("Fragile Skeleton", 10, 0, 0, 100);
         weakEnemy.setPosition(new Position(1, 1));
 
         List<Enemy> activeEnemies = new ArrayList<>();

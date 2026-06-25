@@ -16,13 +16,18 @@ public class PlayerFactory {
      */
     public static void printMenu(MessageCallback callback) {
         callback.send("Select player:");
-        callback.send("1. Jon Snow             Health: 300/300         Attack: 30              Defense: 4              Level: 1                Experience: 0/50                Cooldown: 0/3");
-        callback.send("2. The Hound            Health: 400/400         Attack: 20              Defense: 6              Level: 1                Experience: 0/50                Cooldown: 0/5");
-        callback.send("3. Melisandre           Health: 100/100         Attack: 5               Defense: 1              Level: 1                Experience: 0/50                Mana: 75/300            Spell Power: 15");
-        callback.send("4. Thoros of Myr        Health: 250/250         Attack: 25              Defense: 4              Level: 1                Experience: 0/50                Mana: 37/150            Spell Power: 20");
-        callback.send("5. Arya Stark           Health: 150/150         Attack: 40              Defense: 2              Level: 1                Experience: 0/50                Energy: 100/100");
-        callback.send("6. Bronn                Health: 250/250         Attack: 35              Defense: 3              Level: 1                Experience: 0/50                Energy: 100/100");
-        callback.send("7. Ygritte              Health: 220/220         Attack: 30              Defense: 2              Level: 1                Experience: 0/50                Arrows: 10              Range: 6");
+        callback.send("1. Jon Snow             Health: 300/300         Attack: 30              Defense: 4              Level: 1                Experience: 0/100                Cooldown: 0/3");
+        callback.send("2. The Hound            Health: 400/400         Attack: 20              Defense: 6              Level: 1                Experience: 0/100                Cooldown: 0/5");
+        callback.send("3. Melisandre           Health: 100/100         Attack: 5               Defense: 1              Level: 1                Experience: 0/100                Mana: 75/300            Spell Power: 15");
+        callback.send("4. Thoros of Myr        Health: 250/250         Attack: 25              Defense: 4              Level: 1                Experience: 0/100                Mana: 37/150            Spell Power: 20");
+        callback.send("5. Arya Stark           Health: 150/150         Attack: 40              Defense: 2              Level: 1                Experience: 0/100                Energy: 100/100");
+        callback.send("6. Bronn                Health: 250/250         Attack: 35              Defense: 3              Level: 1                Experience: 0/100                Energy: 100/100");
+        callback.send("7. Ygritte              Health: 220/220         Attack: 30              Defense: 2              Level: 1                Experience: 0/100                Arrows: 10/10           Range: 6");
+        callback.send("8. Aragorn              Health: 350/350         Attack: 32              Defense: 3              Level: 1                Experience: 0/100                Cooldown: 0/4");
+        callback.send("9. Gandalf the Grey     Health: 90/90           Attack: 5               Defense: 1              Level: 1                Experience: 0/100                Mana: 80/320            Spell Power: 40");
+        callback.send("10. Bilbo Baggins       Health: 110/110         Attack: 28              Defense: 2              Level: 1                Experience: 0/100                Energy: 100/100");
+        callback.send("11. Legolas             Health: 180/180         Attack: 38              Defense: 3              Level: 1                Experience: 0/100                Arrows: 10/10           Range: 9");
+        callback.send("12. Hermione Granger    Health: 130/130         Attack: 6               Defense: 2              Level: 1                Experience: 0/100                Mana: 55/220            Spell Power: 22");
     }
 
     /**
@@ -43,11 +48,25 @@ public class PlayerFactory {
             case 4: return new Mage("Thoros of Myr", 250, 25, 4, 150, 20, 20, 3, 4);
 
             // Rogues (Name, Health, Attack, Defense, Energy Cost)
-            case 5: return new Rogue("Arya Stark", 150, 40, 2, 20);
+            case 5: return new Rogue("Arya Stark", 150, 40, 2, 35);
             case 6: return new Rogue("Bronn", 250, 35, 3, 50);
 
             // Hunter (Name, Health, Attack, Defense, Range)
             case 7: return new Hunter("Ygritte", 220, 30, 2, 6);
+
+            // --- Lord of the Rings / Harry Potter ---
+            // Warrior
+            case 8: return new Warrior("Aragorn", 350, 32, 3, 4);
+
+            // Mages
+            case 9:  return new Mage("Gandalf the Grey", 90, 5, 1, 320, 50, 40, 3, 9);
+            case 12: return new Mage("Hermione Granger", 130, 6, 2, 220, 28, 22, 5, 5);
+
+            // Rogue
+            case 10: return new Rogue("Bilbo Baggins", 110, 28, 2, 15);
+
+            // Hunter
+            case 11: return new Hunter("Legolas", 180, 38, 3, 9);
 
             // Default fallback
             default:

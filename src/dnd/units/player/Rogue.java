@@ -45,13 +45,13 @@ public class Rogue extends Player {
 
         // 2. Apply Rogue specific bonuses
         this.currentEnergy = MAX_ENERGY;
-        this.attackPower += (3 * this.level);
+        this.attackPower += 3;
 
-        // 3. Log the exact total stat gains
-        // (Base 10 HP) + (Base 4 + Rogue 3 = 7 Atk) + (Base 1 Def)
-        int totalHealthGain = 10 * this.level;
-        int totalAttackGain = 7 * this.level;
-        int totalDefenseGain = this.level;
+        // 3. Log the exact total stat gains (flat per level)
+        // (Base +15 HP) + (Base +5 + Rogue +3 = +8 Atk) + (Base +1 Def)
+        int totalHealthGain = 15;
+        int totalAttackGain = 8;
+        int totalDefenseGain = 1;
 
         logMessage(getName() + " reached level " + this.level + ": +" + totalHealthGain + " Health, +" + totalAttackGain + " Attack, +" + totalDefenseGain + " Defense");
     }

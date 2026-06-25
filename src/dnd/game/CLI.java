@@ -46,7 +46,22 @@ public class CLI implements MessageCallback {
     public void start() {
         int choice;
 
-        // Print the menu EXACTLY ONCE before the loop begins
+        // Print welcome screen, then the menu EXACTLY ONCE before the loop begins
+        send("============================================================");
+        send("  Welcome to D&D: The Long Night");
+        send("============================================================");
+        send("");
+        send("The Night King marches on Westeros. You must fight your way");
+        send("through 4 levels of enemies and reach the final confrontation.");
+        send("");
+        send("Controls  (keep the Controller window in focus):");
+        send("  w / s / a / d  — Move up / down / left / right");
+        send("  e              — Use your class ability");
+        send("  q              — Quit");
+        send("");
+        send("Tip: level up, manage your resources, and choose your battles.");
+        send("============================================================");
+        send("");
         PlayerFactory.printMenu(this);
 
         // Loop until a valid choice (1-7) is entered
@@ -55,7 +70,7 @@ public class CLI implements MessageCallback {
                 choice = scanner.nextInt();
                 scanner.nextLine(); // Consume newline
 
-                if (choice >= 1 && choice <= 7) {
+                if (choice >= 1 && choice <= 12) {
                     break; // Valid choice, break the loop and start the game!
                 }
             } else {
@@ -63,7 +78,7 @@ public class CLI implements MessageCallback {
             }
 
             // Print the error message, and the loop will naturally wait for new input!
-            send("Invalid input. Please enter a number between 1 and 7.");
+            send("Invalid input. Please enter a number between 1 and 12.");
         }
 
         // Initialize Engine

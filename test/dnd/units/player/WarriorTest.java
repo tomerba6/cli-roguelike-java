@@ -27,19 +27,19 @@ public class WarriorTest {
     /** Level-up to 2: verifies combined base+warrior HP/attack/defense gains and cooldown reset. */
     @Test
     public void testWarriorLevelUpMath() {
-        // Force a level up (Level 1 -> 2 requires 50 XP)
-        warrior.addExperience(50);
+        // Force a level up (Level 1 -> 2 requires 100 XP)
+        warrior.addExperience(100);
 
         assertEquals(2, warrior.getLevel(), "Warrior should be level 2");
 
-        // Base Health (+10*lvl) + Warrior Health (+5*lvl) = +15*lvl. (Adds 30).
-        assertEquals(130, warrior.getHealth().getHealthPool(), "Health pool should scale with Warrior bonuses");
+        // Base Health (+15 flat) + Warrior Health (+5 flat) = +20 per level-up.
+        assertEquals(120, warrior.getHealth().getHealthPool(), "Health pool should scale with Warrior bonuses");
 
-        // Base Attack (+4*lvl) + Warrior Attack (+2*lvl) = +6*lvl. (Adds 12).
-        assertEquals(42, warrior.getAttackPower(), "Attack should scale with Warrior bonuses");
+        // Base Attack (+5 flat) + Warrior Attack (+2 flat) = +7 per level-up.
+        assertEquals(37, warrior.getAttackPower(), "Attack should scale with Warrior bonuses");
 
-        // Base Defense (+1*lvl) + Warrior Defense (+2*lvl) = +3*lvl. (Adds 6).
-        assertEquals(10, warrior.getDefensePower(), "Defense should correctly accumulate the +3 per level gain");
+        // Base Defense (+1 flat) + Warrior Defense (+2 flat) = +3 per level-up.
+        assertEquals(7, warrior.getDefensePower(), "Defense should correctly accumulate the +3 per level gain");
 
         // Cooldown should be completely reset upon leveling up
         assertEquals(0, warrior.getRemainingCooldown(), "Cooldown should reset to 0 on level up");

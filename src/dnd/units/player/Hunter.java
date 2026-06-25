@@ -42,15 +42,15 @@ public class Hunter extends Player {
         // 1. Apply base Player updates (Level++, Base HP +10*lvl, Atk +4*lvl, Def +1*lvl)
         super.levelUp();
 
-        // 2. Apply Hunter specific bonuses
-        this.arrowsCount += (10 * this.level);
-        this.attackPower += (2 * this.level);
-        this.defensePower += this.level;
+        // 2. Apply Hunter specific bonuses — fill quiver to new cap
+        this.arrowsCount = 10 * this.level;
+        this.attackPower += 2;
+        this.defensePower += 1;
 
-        // 3. Log the exact total stat gains matching the autograder's format
-        int totalHealthGain = 10 * this.level;
-        int totalAttackGain = 6 * this.level; // Base 4 + Hunter 2
-        int totalDefenseGain = 2 * this.level; // Base 1 + Hunter 1
+        // 3. Log the exact total stat gains (flat per level)
+        int totalHealthGain = 15; // Base +15
+        int totalAttackGain = 7;  // Base +5 + Hunter +2
+        int totalDefenseGain = 2; // Base +1 + Hunter +1
 
         logMessage(getName() + " reached level " + this.level + ": +" + totalHealthGain + " Health, +" + totalAttackGain + " Attack, +" + totalDefenseGain + " Defense");
     }
@@ -59,12 +59,12 @@ public class Hunter extends Player {
 
     /**
      * Called once per game loop tick by the engine.
-     * Regenerates arrows every 10 ticks based on the current level.
+     * Regenerates exactly 1 arrow every 10 ticks, capped at 10 × current level.
      */
     @Override
     public void onGameTick() {
         if (this.ticksCount == 10) {
-            this.arrowsCount += this.level;
+            this.arrowsCount = Math.min(this.arrowsCount + 1, 10 * this.level);
             this.ticksCount = 0;
         } else {
             this.ticksCount++;
@@ -147,8 +147,8 @@ public class Hunter extends Player {
      */
     @Override
     public String description() {
-        return super.description() + String.format("\t\tArrows: %d\t\tRange: %d",
-                this.arrowsCount, this.range);
+        return super.description() + String.format("\t\tArrows: %d/%d\t\tRange: %d",
+                this.arrowsCount, 10 * this.level, this.range);
     }
 
     // Getters for potential unit testing

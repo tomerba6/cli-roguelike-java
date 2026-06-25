@@ -54,9 +54,9 @@ public class Mage extends Player {
         // 1. Apply base Player updates (Level++, Base HP +10*lvl, Atk +4*lvl, Def +1*lvl)
         super.levelUp();
 
-        // 2. Calculate Mage specific stat gains
-        int manaGain = 25 * this.level;
-        int spellPowerGain = 10 * this.level;
+        // 2. Calculate Mage specific stat gains (flat per level)
+        int manaGain = 25;
+        int spellPowerGain = 10;
 
         // 3. Apply Mage specific bonuses
         this.manaPool += manaGain;
@@ -64,9 +64,9 @@ public class Mage extends Player {
         this.spellPower += spellPowerGain;
 
         // Note: No extra HP/Atk/Def to add here, the Mage takes exactly the base gains.
-        int totalHealthGain = 10 * this.level;
-        int totalAttackGain = 4 * this.level;
-        int totalDefenseGain = 1 * this.level;
+        int totalHealthGain = 15;
+        int totalAttackGain = 5;
+        int totalDefenseGain = 1;
 
         // 4. Log the exact total stat gains
         logMessage(getName() + " reached level " + this.level + ": +" + totalHealthGain + " Health, +" + totalAttackGain + " Attack, +" + totalDefenseGain + " Defense");
@@ -81,7 +81,7 @@ public class Mage extends Player {
      */
     @Override
     public void onGameTick() {
-        this.currentMana = Math.min(this.manaPool, this.currentMana + (this.level));
+        this.currentMana = Math.min(this.manaPool, this.currentMana + (this.level * 2));
     }
 
     // --- SPECIAL ABILITY ---

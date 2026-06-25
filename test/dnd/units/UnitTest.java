@@ -78,24 +78,24 @@ public class UnitTest {
 
     // --- LEVEL UP SYSTEM TEST ---
 
-    /** Adds 250 XP: verifies multi-level-up rollover, leftover XP, and cumulative stat growth. */
+    /** Adds 350 XP: verifies multi-level-up rollover, leftover XP, and cumulative stat growth. */
     @Test
     public void testExperienceAndLevelUp() {
-        // Player starts at Level 1. Math check:
-        // Lvl 1 -> 2 costs 50 (200 left). Stats: HP+20, Atk+8, Def+2
-        // Lvl 2 -> 3 costs 100 (100 left). Stats: HP+30, Atk+12, Def+3
-        // Lvl 3 -> 4 costs 150 (Stops here, 100 XP remains)
-        player.addExperience(250);
+        // Player starts at Level 1. Math check (flat gains per level-up):
+        // Lvl 1 -> 2 costs 100 (250 left). Stats: HP+15, Atk+5, Def+1
+        // Lvl 2 -> 3 costs 200 (50 left). Stats: HP+15, Atk+5, Def+1
+        // Lvl 3 -> 4 costs 300 (Stops here, 50 XP remains)
+        player.addExperience(350);
 
-        assertEquals(3, player.getLevel(), "Player should level up to 3 based on 250 XP");
-        assertEquals(100, player.getExperience(), "Player should have 100 experience points left after level up.");
+        assertEquals(3, player.getLevel(), "Player should level up to 3 based on 350 XP");
+        assertEquals(50, player.getExperience(), "Player should have 50 experience points left after level up.");
 
-        // Checking base stats accumulation
-        assertEquals(150, player.getHealth().getHealthPool(), "Max health should be 100 + 20 + 30 = 150");
-        assertEquals(40, player.getAttackPower(), "Attack should be 20 + 8 + 12 = 40");
-        assertEquals(10, player.getDefensePower(), "Defense should be 5 + 2 + 3 = 10");
+        // Checking base stats accumulation (flat +15 HP, +5 Atk, +1 Def per level)
+        assertEquals(130, player.getHealth().getHealthPool(), "Max health should be 100 + 15 + 15 = 130");
+        assertEquals(30, player.getAttackPower(), "Attack should be 20 + 5 + 5 = 30");
+        assertEquals(7, player.getDefensePower(), "Defense should be 5 + 1 + 1 = 7");
 
-        // Ensure healing occurred
-        assertEquals(150, player.getHealth().getHealthAmount(), "Player should be fully healed upon leveling up.");
+        // Ensure healing occurred (25% each level-up, overshoots to pool cap)
+        assertEquals(130, player.getHealth().getHealthAmount(), "Player should fill to the new HP pool on leveling up.");
     }
 }

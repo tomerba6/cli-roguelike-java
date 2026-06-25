@@ -39,18 +39,18 @@ public class RogueTest {
         assertTrue(success, "Cast should succeed");
         assertEquals(80, rogue.getCurrentEnergy(), "Energy drops by exactly the cost (20)");
 
-        // Force a level up to Level 2 (requires 50 XP)
-        rogue.addExperience(50);
+        // Force a level up to Level 2 (requires 100 XP)
+        rogue.addExperience(100);
 
-        // 1. Verify Normal Player Stats
-        assertEquals(170, rogue.getHealth().getHealthPool(), "Health pool: 150 + (10 * 2) = 170");
-        assertEquals(4, rogue.getDefensePower(), "Defense: 2 + (1 * 2) = 4");
+        // 1. Verify Normal Player Stats (flat gains)
+        assertEquals(165, rogue.getHealth().getHealthPool(), "Health pool: 150 + 15 = 165");
+        assertEquals(3, rogue.getDefensePower(), "Defense: 2 + 1 = 3");
 
         // 2. Verify Rogue-Specific Stats
-        // Base Player Attack increases by (4 * 2) = 8
-        // Rogue Bonus Attack increases by (3 * 2) = 6
-        // Total Attack: 40 + 8 + 6 = 54
-        assertEquals(54, rogue.getAttackPower(), "Attack should scale with both Player and Rogue bonuses");
+        // Base Player Attack increases by flat 5
+        // Rogue Bonus Attack increases by flat 3
+        // Total Attack: 40 + 5 + 3 = 48
+        assertEquals(48, rogue.getAttackPower(), "Attack should scale with both Player and Rogue bonuses");
 
         // Energy reset
         assertEquals(100, rogue.getCurrentEnergy(), "Energy should completely refill to 100 on level up");

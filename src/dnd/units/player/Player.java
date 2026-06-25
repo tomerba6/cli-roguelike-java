@@ -44,12 +44,12 @@ public abstract class Player extends Unit implements HeroicUnit {
      */
     public void addExperience(int experienceGain) {
         this.experience += experienceGain;
-        int levelUpRequirement = 50 * this.level;
+        int levelUpRequirement = 100 * this.level;
 
         while (this.experience >= levelUpRequirement) {
             this.experience -= levelUpRequirement;
             this.levelUp();
-            levelUpRequirement = 50 * this.level;
+            levelUpRequirement = 100 * this.level;
         }
     }
 
@@ -60,10 +60,10 @@ public abstract class Player extends Unit implements HeroicUnit {
      */
     protected void levelUp() {
         this.level++;
-        this.getHealth().addHealthPool(10 * this.level);
-        this.getHealth().heal(this.getHealth().getHealthPool());
-        this.attackPower += 4 * this.level;
-        this.defensePower += this.level;
+        this.getHealth().addHealthPool(15);
+        this.getHealth().heal(this.getHealth().getHealthPool() / 4);
+        this.attackPower += 5;
+        this.defensePower += 1;
     }
 
 
@@ -145,7 +145,7 @@ public abstract class Player extends Unit implements HeroicUnit {
      */
     @Override
     public String description() {
-        int nextLevelRequirement = 50 * this.level;
+        int nextLevelRequirement = 100 * this.level;
 
         return super.description() + String.format("\t\tLevel: %d\t\tExperience: %d/%d",
                 this.level,

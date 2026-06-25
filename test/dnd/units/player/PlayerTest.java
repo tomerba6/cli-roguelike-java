@@ -82,37 +82,37 @@ public class PlayerTest {
 
     // --- LEVEL UP MATH TESTS ---
 
-    /** Exactly 50 XP triggers a level-up: verifies base stat increases and full heal. */
+    /** Exactly 100 XP triggers a level-up: verifies base stat increases and partial heal. */
     @Test
     public void testAddExperienceExactLevelUp() {
-        // Level 1 -> 2 requires exactly 50 XP
-        player.addExperience(50);
+        // Level 1 -> 2 requires exactly 100 XP
+        player.addExperience(100);
 
         assertEquals(2, player.getLevel(), "Player should be level 2");
         assertEquals(0, player.getExperience(), "Experience should roll over back to 0");
 
-        // Verify Base Stats Growth:
-        // HP: 100 + (10 * 2) = 120
-        // Attack: 20 + (4 * 2) = 28
-        // Defense: 5 + (1 * 2) = 7
-        assertEquals(120, player.getHealth().getHealthPool(), "Health should increase by 10 * level");
-        assertEquals(120, player.getHealth().getHealthAmount(), "Health should fully heal upon leveling up");
-        assertEquals(28, player.getAttackPower(), "Attack should increase by 4 * level");
-        assertEquals(7, player.getDefensePower(), "Defense should increase by 1 * level");
+        // Verify Base Stats Growth (flat per level-up):
+        // HP: 100 + 15 = 115
+        // Attack: 20 + 5 = 25
+        // Defense: 5 + 1 = 6
+        assertEquals(115, player.getHealth().getHealthPool(), "Health should increase by flat 15");
+        assertEquals(115, player.getHealth().getHealthAmount(), "Health should fill to the new pool cap");
+        assertEquals(25, player.getAttackPower(), "Attack should increase by flat 5");
+        assertEquals(6, player.getDefensePower(), "Defense should increase by flat 1");
     }
 
-    /** 170 XP causes two consecutive level-ups with correct leftover XP. */
+    /** 350 XP causes two consecutive level-ups with correct leftover XP. */
     @Test
     public void testAddExperienceMassiveRollover() {
         // Player starts at Level 1 (0 XP)
-        // Add 170 XP.
-        // Lvl 1 -> 2 costs 50 (120 left).
-        // Lvl 2 -> 3 costs 100 (20 left).
-        // Lvl 3 -> 4 costs 150 (Not enough, stops at Level 3).
-        player.addExperience(170);
+        // Add 350 XP.
+        // Lvl 1 -> 2 costs 100 (250 left).
+        // Lvl 2 -> 3 costs 200 (50 left).
+        // Lvl 3 -> 4 costs 300 (Not enough, stops at Level 3).
+        player.addExperience(350);
 
         assertEquals(3, player.getLevel(), "Player should jump to level 3");
-        assertEquals(20, player.getExperience(), "Player should have exactly 20 experience leftover");
+        assertEquals(50, player.getExperience(), "Player should have exactly 50 experience leftover");
     }
 
     // --- GAME ENGINE SAFETIES ---
