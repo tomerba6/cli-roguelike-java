@@ -57,7 +57,7 @@ public class CLI implements MessageCallback {
         send("Controls  (keep the Controller window in focus):");
         send("  w / s / a / d  — Move up / down / left / right");
         send("  e              — Use your class ability");
-        send("  q              — Quit");
+        send("  q              — Rest (Do nothing)");
         send("");
         send("Tip: level up, manage your resources, and choose your battles.");
         send("============================================================");
