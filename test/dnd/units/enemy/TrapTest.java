@@ -97,8 +97,12 @@ public class TrapTest {
 
         int healthBefore = player.getHealth().getHealthAmount();
 
-        // Trigger attack
-        trap.takeTurn(player);
+        // RNG-Buster: the trap attacks with a random roll (0..50) against the player's 0 defense,
+        // so a single swing CAN roll 0 and deal no damage. The trap re-attacks every takeTurn while
+        // the player stays in range < 2, so keep ticking until a non-zero roll registers damage.
+        for (int i = 0; i < 50 && player.getHealth().getHealthAmount() == healthBefore; i++) {
+            trap.takeTurn(player);
+        }
 
         assertTrue(player.getHealth().getHealthAmount() < healthBefore,
                 "Player should have taken damage because they are within range < 2");

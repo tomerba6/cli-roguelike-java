@@ -82,9 +82,19 @@ public class GameEngineTest {
             ((Enemy) target).getHealth().takeDamage(((Enemy) target).getHealth().getHealthAmount() - 1);
         }
 
-        // Move player down and right to kill the monster at (2,2)
+        // First tick: the monster is walled in at (2,2) and can only pathfind up to (2,1),
+        // which lands it directly to the right of the stationary player at (1,1).
+        GameBoard level1Board = engine.getCurrentBoard();
         engine.gameTick('s');
-        engine.gameTick('d');
+
+        // RNG-Buster: a single Warrior swing (0-30 attack) can roll a 0 or be fully blocked by the
+        // Gold Cloak's defense roll (0-3), so one 'd' is NOT guaranteed to kill the 1-HP monster.
+        // Keep swinging until a non-zero roll lands the kill. Clearing Level 1's only enemy makes the
+        // engine immediately load Level 2, swapping in a brand-new board instance — our signal to stop
+        // (so the player never gets a stray turn on the freshly loaded Level 2).
+        for (int i = 0; i < 50 && engine.getCurrentBoard() == level1Board; i++) {
+            engine.gameTick('d');
+        }
 
         // At this exact moment, Level 1 is clear. The engine should have immediately loaded Level 2!
 
